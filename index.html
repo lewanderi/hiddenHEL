@@ -1,0 +1,42 @@
+ <!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kesä Hesa</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css"/>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <a class="logo" href="#">Kesä<span>Hesa</span></a>
+    <span class="tagline">Helsinki underground culture</span>
+  </header>
+
+  <div class="filters">
+    <button class="filter-btn active" data-filter="all">Kaikki</button>
+    <button class="filter-btn" data-filter="today">Tänään</button>
+    <button class="filter-btn" data-filter="weekend">Tänä viikonloppuna</button>
+    <button class="filter-btn" data-filter="week">Tällä viikolla</button>
+  </div>
+
+  <div class="layout" id="layout">
+    <div class="list-panel" id="list-panel"></div>
+    <div id="map"></div>
+  </div>
+
+  <div class="view-toggle">
+    <button class="toggle-btn active" data-view="map">Kartta</button>
+    <button class="toggle-btn" data-view="list">Lista</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
+  <script src="main.js"></script>
+
+</body>
+</html>
