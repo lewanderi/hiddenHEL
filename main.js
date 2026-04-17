@@ -101,7 +101,7 @@ const map = L.map('map', {
   zoomControl: false
 });
 
-L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; OpenStreetMap &copy; CARTO',
   subdomains: 'abcd',
   maxZoom: 19
