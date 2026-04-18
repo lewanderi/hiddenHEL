@@ -1,3 +1,20 @@
+// MVP demo dates
+function getRelativeDate(daysFromNow) {
+  const d = new Date();
+  d.setDate(d.getDate() + daysFromNow);
+  return d.toISOString().split('T')[0];
+}
+
+function getNextSaturday() {
+  const day = new Date().getDay();
+  return getRelativeDate(day === 6 ? 0 : 6 - day);
+}
+
+function getNextSunday() {
+  const day = new Date().getDay();
+  return getRelativeDate(day === 0 ? 0 : 7 - day);
+}
+
 const events = [
   {
     id: 1,
@@ -12,11 +29,11 @@ const events = [
   },
   {
     id: 2,
-    title: "Kesä Alotus Bileet",
+    title: "Kesän avaus pingis",
     date: "2025-06-05",
     dateLabel: "Pe 5.6.",
     time: "16:00",
-    desc: "Kesän virallinen avaus. BYO.",
+    desc: "Kesän virallinen avaus, pingisturnauksen merkeissä.",
     location: "Hietsu uimaranta",
     lat: 60.173254,
     lng: 24.916592
@@ -34,7 +51,7 @@ const events = [
   },
   {
     id: 4,
-    title: "Hiekkalinna kilpailu",
+    title: "Hiekkalinnakilpailu",
     date: "2025-06-14",
     dateLabel: "La 14.6.",
     time: "12:00",
@@ -56,7 +73,7 @@ const events = [
   },
   {
     id: 6,
-    title: "Spikeball Turnajaiset",
+    title: "Spikeball-Turnajaiset",
     date: "2025-07-04",
     dateLabel: "Pe 4.7.",
     time: "15:00",
@@ -64,7 +81,73 @@ const events = [
     location: "Hietsu uimaranta",
     lat: 60.174109,
     lng: 24.906711
-  }
+  },
+  {
+    id: 7,
+    title: "Rantalenttis",
+    date: getRelativeDate(0),
+    dateLabel: "Tänään",
+    time: "18:00",
+    desc: "Rento lenttis turnaus. Ilmoittautuminen paikan päällä.",
+    location: "Pony Beach, Pakila",
+    lat: 60.246192,
+    lng: 24.971611
+  },
+  {
+    id: 8,
+    title: "Puistokaraoke",
+    date: getRelativeDate(2),
+    dateLabel: "Tällä viikolla",
+    time: "18:30",
+    desc: "Karaoke night outside",
+    location: "Pajalahden puisto, Lauttasaari",
+    lat: 60.157623,
+    lng: 24.884055
+  },
+  {
+    id: 9,
+    title: "LauantaiLeffa",
+    date: getRelativeDate(2),
+    dateLabel: "Tällä viikolla",
+    time: "20:00",
+    desc: "Outside movie @cafe X",
+    location: "Tokoinranta",
+    lat: 60.180088,
+    lng: 24.941203
+  },
+  {
+    id: 10,
+    title: "Laru kybä",
+    date: getNextSaturday(),
+    dateLabel: "Tänä viikonloppuna",
+    time: "9:00",
+    desc: "Legendaarinen Larun 10km GOAT lenkki",
+    location: "Kasinonranta, Lauttasaari",
+    lat: 60.155156,
+    lng: 24.871360
+  },
+  {
+    id: 11,
+    title: "Kahvia & Koiria",
+    date: getNextSunday(),
+    dateLabel: "Tänä viikonloppuna",
+    time: "12:00",
+    desc: "Kahvia ja karvakamuja",
+    location: "Käpylän kiska",
+    lat: 60.217113,
+    lng: 24.954762
+  },
+  {
+    id: 12,
+    title: "Puistojooga",
+    date: getRelativeDate(0),
+    dateLabel: "Tänään",
+    time: "17:00",
+    desc: "Rento yin-jooga kaikentasoisille",
+    location: "Munkkiniemen ranta",
+    lat: 60.196334,
+    lng: 24.868661
+  },  
 ];
 
 // ---------- Filtering ----------
@@ -90,7 +173,7 @@ function getFilteredEvents(filter) {
     if (filter === 'weekend') return d >= saturday && d <= new Date(sunday.getTime() + 86400000);
     if (filter === 'week')    return d >= today && d <= endOfWeek;
     return true;
-  });
+  }).sort((a, b) => new Date(a.date) - new Date(b.date));
 }
 
 // ---------- Map setup ----------
@@ -136,7 +219,7 @@ function createMarkerIcon(active) {
     html: `<div style="
       width: ${size}px;
       height: ${size}px;
-      background: #ff8524;
+      background: #fc90e0;
       border-radius: 50%;
       border: 2px solid ${border};
       opacity: ${active ? 1 : 0.75};
