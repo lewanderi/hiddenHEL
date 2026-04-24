@@ -1,154 +1,42 @@
-// MVP demo dates
-function getRelativeDate(daysFromNow) {
-  const d = new Date();
-  d.setDate(d.getDate() + daysFromNow);
-  return d.toISOString().split('T')[0];
+// ---------- Supabase ----------
+
+const SUPABASE_URL = 'https://oycvxtvlhtajrnvddlhp.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95Y3Z4dHZsaHRhanJudmRkbGhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NzkzNTcsImV4cCI6MjA5MjU1NTM1N30.yBfTpwV9ixF0ImfovAx1CHVLgDMRBc21u3rCB3QMFZk';
+
+async function fetchEvents() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/events?status=eq.approved&select=*`, {
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+    }
+  });
+  const data = await res.json();
+
+  // Map Supabase fields to the format the rest of the code expects
+  return data.map(e => ({
+    id: e.id,
+    title: e.title,
+    date: e.date,
+    dateLabel: formatDateLabel(e.date),
+    time: e.time || '',
+    desc: e.description || '',
+    location: e.location_name || '',
+    lat: e.lat,
+    lng: e.lng
+  }));
 }
 
-function getNextSaturday() {
-  const day = new Date().getDay();
-  return getRelativeDate(day === 6 ? 0 : 6 - day);
-}
+function formatDateLabel(dateStr) {
+  const today = new Date();
+  const d = new Date(dateStr);
+  const todayStr = today.toISOString().split('T')[0];
+  const tomorrowStr = new Date(today.getTime() + 86400000).toISOString().split('T')[0];
 
-function getNextSunday() {
-  const day = new Date().getDay();
-  return getRelativeDate(day === 0 ? 0 : 7 - day);
-}
+  if (dateStr === todayStr) return 'Tänään';
+  if (dateStr === tomorrowStr) return 'Huomenna';
 
-const events = [
-  {
-    id: 1,
-    title: "Tuesday Tunes",
-    date: "2025-06-02",
-    dateLabel: "Ti 2.6.",
-    time: "18:00",
-    desc: "Puistohengailu mellow dj seteillä. Bring your deck, leave your stress.",
-    location: "Pengerpuisto, Kallio",
-    lat: 60.1839,
-    lng: 24.9511
-  },
-  {
-    id: 2,
-    title: "Kesän avaus pingis",
-    date: "2025-06-05",
-    dateLabel: "Pe 5.6.",
-    time: "16:00",
-    desc: "Kesän virallinen avaus, pingisturnauksen merkeissä.",
-    location: "Hietsu uimaranta",
-    lat: 60.173254,
-    lng: 24.916592
-  },
-  {
-    id: 3,
-    title: "Leikkiklubi",
-    date: "2025-06-16",
-    dateLabel: "Ma 16.6.",
-    time: "14:00",
-    desc: "Leikkiklubi, pihapelejä kaikille!",
-    location: "Mustikkamaa",
-    lat: 60.181440,
-    lng: 24.991664
-  },
-  {
-    id: 4,
-    title: "Hiekkalinnakilpailu",
-    date: "2025-06-14",
-    dateLabel: "La 14.6.",
-    time: "12:00",
-    desc: "Rakenna hienoin hiekkamuodostelma. Hiekka ja kunnia!",
-    location: "Hietsu uimaranta",
-    lat: 60.174109,
-    lng: 24.906711
-  },
-  {
-    id: 5,
-    title: "Ice Bath Pop-up",
-    date: "2025-06-22",
-    dateLabel: "Su 22.6.",
-    time: "13:00",
-    desc: "DIY kylpyamme kesähelteellä. Kokeile kylmää kun muut hikoilee.",
-    location: "Löylykontti, Sörnäinen",
-    lat: 60.182381,
-    lng: 24.963015
-  },
-  {
-    id: 6,
-    title: "Spikeball-Turnajaiset",
-    date: "2025-07-04",
-    dateLabel: "Pe 4.7.",
-    time: "15:00",
-    desc: "Rento spikeball turnaus. Ilmoittautuminen paikan päällä.",
-    location: "Hietsu uimaranta",
-    lat: 60.174109,
-    lng: 24.906711
-  },
-  {
-    id: 7,
-    title: "Rantalenttis",
-    date: getRelativeDate(0),
-    dateLabel: "Tänään",
-    time: "18:00",
-    desc: "Rento lenttis turnaus. Ilmoittautuminen paikan päällä.",
-    location: "Pony Beach, Pakila",
-    lat: 60.246192,
-    lng: 24.971611
-  },
-  {
-    id: 8,
-    title: "Puistokaraoke",
-    date: getRelativeDate(2),
-    dateLabel: "Tällä viikolla",
-    time: "18:30",
-    desc: "Karaoke night outside",
-    location: "Pajalahden puisto, Lauttasaari",
-    lat: 60.157623,
-    lng: 24.884055
-  },
-  {
-    id: 9,
-    title: "LauantaiLeffa",
-    date: getRelativeDate(2),
-    dateLabel: "Tällä viikolla",
-    time: "20:00",
-    desc: "Outside movie @cafe X",
-    location: "Tokoinranta",
-    lat: 60.180088,
-    lng: 24.941203
-  },
-  {
-    id: 10,
-    title: "Laru kybä",
-    date: getNextSaturday(),
-    dateLabel: "Tänä viikonloppuna",
-    time: "9:00",
-    desc: "Legendaarinen Larun 10km GOAT lenkki",
-    location: "Kasinonranta, Lauttasaari",
-    lat: 60.155156,
-    lng: 24.871360
-  },
-  {
-    id: 11,
-    title: "Kahvia & Koiria",
-    date: getNextSunday(),
-    dateLabel: "Tänä viikonloppuna",
-    time: "12:00",
-    desc: "Kahvia ja karvakamuja",
-    location: "Käpylän kiska",
-    lat: 60.217113,
-    lng: 24.954762
-  },
-  {
-    id: 12,
-    title: "Puistojooga",
-    date: getRelativeDate(0),
-    dateLabel: "Tänään",
-    time: "17:00",
-    desc: "Rento yin-jooga kaikentasoisille",
-    location: "Munkkiniemen ranta",
-    lat: 60.196334,
-    lng: 24.868661
-  },  
-];
+  return d.toLocaleDateString('fi-FI', { weekday: 'long', day: 'numeric', month: 'numeric' });
+}
 
 // ---------- Filtering ----------
 
@@ -282,6 +170,7 @@ function renderList(filtered) {
 
 let activeFilter = 'all';
 let activeId = null;
+let events = [];
 
 function selectEvent(id) {
   activeId = id;
@@ -346,4 +235,7 @@ document.querySelectorAll('.toggle-btn').forEach(btn => {
 
 // ---------- Init ----------
 
-render();
+fetchEvents().then(data => {
+  events = data;
+  render();
+});
