@@ -19,10 +19,12 @@ async function fetchEvents() {
     date: e.date,
     dateLabel: formatDateLabel(e.date),
     time: e.time || '',
+    end_time: e.end_time || null,
     desc: e.description || '',
     location: e.location_name || '',
     lat: e.lat,
-    lng: e.lng
+    lng: e.lng,
+    link: e.link || null
   }));
 }
 
@@ -32,10 +34,11 @@ function formatDateLabel(dateStr) {
   const todayStr = today.toISOString().split('T')[0];
   const tomorrowStr = new Date(today.getTime() + 86400000).toISOString().split('T')[0];
 
-  if (dateStr === todayStr) return 'Tänään';
-  if (dateStr === tomorrowStr) return 'Huomenna';
+  if (dateStr === todayStr) return 'Today';
+  if (dateStr === tomorrowStr) return 'Tomorrow';
 
-  return d.toLocaleDateString('fi-FI', { weekday: 'long', day: 'numeric', month: 'numeric' });
+  const weekday = d.toLocaleDateString('en-GB', { weekday: 'long' });
+  return `${weekday}, ${d.getDate()}.${d.getMonth() + 1}.`;
 }
 
 // ---------- Filtering ----------
@@ -128,12 +131,19 @@ function renderMarkers(filtered) {
     });
     clusterGroup.addLayer(marker);
 
-    marker.bindPopup(`
+marker.bindPopup(`
       <div class="popup-inner">
-        <div class="popup-date">${e.dateLabel} <span class="popup-time">${e.time}</span></div>
+        <div class="popup-meta">
+          <div class="popup-date-badge">${new Date(e.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short' })} ${e.date.split('-').reverse().join('.')}</div>
+          ${e.time ? `<div class="popup-time-box"><div class="popup-time">${e.time}${e.end_time ? '–' + e.end_time : ''}</div></div>` : ''}
+        </div>
         <div class="popup-title">${e.title}</div>
         <div class="popup-desc">${e.desc}</div>
-        <div class="popup-loc">${e.location}</div>
+        <a href="https://www.google.com/maps?q=${e.lat},${e.lng}" target="_blank" class="popup-location">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+          ${e.location}
+        </a>
+        ${e.link ? `<a href="${e.link}" target="_blank" class="popup-link-btn">Event link <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 9L9 3M9 3H4.5M9 3V7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>` : ''}
       </div>
     `, { className: 'custom-popup', closeButton: false });
 
@@ -154,7 +164,7 @@ function renderList(filtered) {
 
   panel.innerHTML = filtered.map(e => `
     <div class="event-card ${activeId === e.id ? 'active' : ''}" data-id="${e.id}">
-      <div class="card-date">${e.dateLabel}</div>
+      <div class="card-date">${e.dateLabel} <span class="card-time">${e.time}${e.end_time ? '–' + e.end_time : ''}</span></div>
       <div class="card-title">${e.title}</div>
       <div class="card-desc">${e.desc}</div>
       <div class="card-location">${e.location}</div>

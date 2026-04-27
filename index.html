@@ -9,6 +9,14 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css"/>
   <link rel="stylesheet" href="style.css">
+
+  <!-- Privacy-friendly analytics by Plausible -->
+  <script async src="https://plausible.io/js/pa-c7kXuP-SRAc8oWnlVa2xN.js"></script>
+  <script>
+    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+    plausible.init()
+  </script>
+
 </head>
 <body>
 
@@ -18,10 +26,10 @@
   </header>
 
   <div class="filters">
-    <button class="filter-btn active" data-filter="all">Kaikki</button>
-    <button class="filter-btn" data-filter="today">Tänään</button>
-    <button class="filter-btn" data-filter="weekend">Tänä viikonloppuna</button>
-    <button class="filter-btn" data-filter="week">Tällä viikolla</button>
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="today">Today</button>
+    <button class="filter-btn" data-filter="weekend">This weekend</button>
+    <button class="filter-btn" data-filter="week">This week</button>
   </div>
 
   <div class="layout" id="layout">
@@ -30,8 +38,8 @@
   </div>
 
   <div class="view-toggle">
-    <button class="toggle-btn active" data-view="map">Kartta</button>
-    <button class="toggle-btn" data-view="list">Lista</button>
+    <button class="toggle-btn active" data-view="map">Map</button>
+    <button class="toggle-btn" data-view="list">List</button>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
