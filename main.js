@@ -52,6 +52,9 @@ function getFilteredEvents(filter) {
   const saturday = new Date(today);
   saturday.setDate(today.getDate() + daysUntilSat);
 
+  const friday = new Date(saturday);
+  friday.setDate(saturday.getDate() - 1);
+
   const sunday = new Date(saturday);
   sunday.setDate(saturday.getDate() + 1);
 
@@ -60,8 +63,9 @@ function getFilteredEvents(filter) {
 
   return events.filter(e => {
     const d = new Date(e.date);
+    if (d < today) return false;
     if (filter === 'today')   return d >= today && d < new Date(today.getTime() + 86400000);
-    if (filter === 'weekend') return d >= saturday && d <= new Date(sunday.getTime() + 86400000);
+    if (filter === 'weekend') return d >= friday && d <= new Date(sunday.getTime() + 86400000);
     if (filter === 'week')    return d >= today && d <= endOfWeek;
     return true;
   }).sort((a, b) => new Date(a.date) - new Date(b.date));
