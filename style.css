@@ -153,6 +153,7 @@ header {
   margin-bottom: 0.3rem;
   letter-spacing: -0.01em;
   line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .card-desc {
@@ -178,6 +179,36 @@ header {
   background: var(--pink);
   border-radius: 50%;
   flex-shrink: 0;
+}
+
+/* ---------- Event tags ---------- */
+
+.event-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  display: inline-block;
+  margin-left: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.event-tag-free {
+  border: 1px solid var(--pink);
+  background: transparent;
+  color: var(--pink);
+}
+
+.event-tag-paid {
+  background: var(--pink);
+  color: var(--black);
+}
+
+.event-tag-signup {
+  border: 1px solid #666;
+  background: transparent;
+  color: var(--muted);
 }
 
 .empty-state {
@@ -281,6 +312,7 @@ header {
   margin-bottom: 0.5rem;
   line-height: 1.2;
   color: var(--white);
+  text-transform: uppercase;
 }
 
 .popup-desc {
@@ -312,13 +344,17 @@ header {
   flex-shrink: 0;
 }
 
+.popup-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .popup-link-btn {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 0.4rem;
-  width: 100%;
-  padding: 0.65rem;
+  padding: 0.5rem 0.9rem;
   font-size: 0.8rem;
   font-weight: 500;
   background: rgba(252, 144, 224, 0.15);
