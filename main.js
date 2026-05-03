@@ -159,7 +159,7 @@ const freeTag = e.is_free === true  ? '<span class="event-tag event-tag-free">FR
           ${freeTag}${signupTag}
         </div>
       </div>
-    `, { className: 'custom-popup', closeButton: false });
+    `, { className: 'custom-popup', closeButton: false, maxWidth: Math.min(260, window.innerWidth - 80) });
 
     marker.on('click', () => selectEvent(e.id));
     markers[e.id] = marker;

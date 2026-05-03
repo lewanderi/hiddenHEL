@@ -20,6 +20,7 @@ body {
   color: var(--white);
   font-family: var(--font-body);
   min-height: 100vh;
+  overflow: hidden;
 }
 
 /* ---------- Header ---------- */
@@ -269,7 +270,7 @@ header {
 }
 
 .popup-inner {
-  padding: 1.25rem;
+  padding: 1rem;
   max-width: calc(100vw - 60px);
 }
 
@@ -307,7 +308,7 @@ header {
 
 .popup-title {
   font-family: var(--font-display);
-  font-size: 1.3rem;
+  font-size: 1rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
   line-height: 1.2;
@@ -319,7 +320,7 @@ header {
   font-size: 0.9rem;
   color: var(--muted);
   line-height: 1.4;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .leaflet-container .popup-location {
@@ -355,7 +356,7 @@ header {
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 0.9rem;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 500;
   background: rgba(252, 144, 224, 0.15);
   color: var(--pink);
