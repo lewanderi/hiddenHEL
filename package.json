@@ -1,0 +1,9 @@
+{
+  "name": "hiddenhel-submissions",
+  "version": "1.0.0",
+  "description": "HiddenHEL event submission handler",
+  "dependencies": {
+    "google-spreadsheet": "^4.1.2",
+    "google-auth-library": "^9.6.3"
+  }
+}

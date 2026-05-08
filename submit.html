@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submit Event — hiddenHEL</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="submit.css">
+</head>
+<body>
+  <header>
+    <a class="logo" href="/">hidden<span>HEL</span></a>
+    <a href="/" class="back-link">← Back to map</a>
+  </header>
+
+  <main>
+    <div class="form-container">
+      <h1 class="page-title">Submit an Event</h1>
+      <p class="page-desc">Know hidden culture in Helsinki? Share an event with us. We review all submissions before publishing.</p>
+
+      <form id="submitForm">
+        <div class="field">
+          <label>Event name *</label>
+          <input type="text" id="title" placeholder="e.g. Rooftop Vinyl Night" required />
+        </div>
+
+        <div class="field">
+          <label>Description *</label>
+          <textarea id="description" rows="4" placeholder="Tell us briefly what happens at this event..." required></textarea>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Date *</label>
+            <input type="date" id="date" required />
+          </div>
+          <div class="field">
+            <label>Start time *</label>
+            <input type="time" id="time" required />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>End time (optional)</label>
+          <input type="time" id="end_time" />
+        </div>
+
+        <div class="field">
+          <label>Location *</label>
+          <input type="text" id="location" placeholder="e.g. Kallio, Helsinki or exact address" required />
+        </div>
+
+        <div class="field">
+          <label>Event link *</label>
+          <input type="url" id="link" placeholder="https://..." required />
+        </div>
+
+        <div class="field">
+          <label>Is it free? *</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="free" value="yes" required />
+              <span class="radio-box"></span>
+              Yes, free
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="free" value="no" />
+              <span class="radio-box"></span>
+              No, paid
+            </label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Signup required? *</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="signup" value="yes" required />
+              <span class="radio-box"></span>
+              Yes
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="signup" value="no" />
+              <span class="radio-box"></span>
+              No
+            </label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Your email *</label>
+          <input type="email" id="submitter_email" placeholder="your@email.com" required />
+          <div class="field-hint">We'll only use this to confirm your submission. We won't publish it.</div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">Submit event</button>
+        <div class="success-msg" id="successMsg"></div>
+        <div class="error-msg" id="errorMsg"></div>
+      </form>
+    </div>
+  </main>
+
+  <script src="submit.js"></script>
+</body>
+</html>

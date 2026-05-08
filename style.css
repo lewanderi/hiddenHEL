@@ -19,8 +19,10 @@ body {
   background: var(--black);
   color: var(--white);
   font-family: var(--font-body);
-  min-height: 100vh;
+  height: 100vh;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ---------- Header ---------- */
@@ -50,11 +52,27 @@ header {
   color: var(--pink);
 }
 
-.tagline {
-  font-size: 0.75rem;
-  color: var(--muted);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.submit-event-btn {
+  background: var(--pink);
+  border: none;
+  border-radius: 6px;
+  color: var(--black);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.submit-event-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
 }
 
 /* ---------- Filters ---------- */
@@ -103,7 +121,8 @@ header {
 .layout {
   display: grid;
   grid-template-columns: 380px 1fr;
-  height: calc(100vh - 105px);
+  flex: 1;
+  min-height: 0;
 }
 
 /* ---------- List panel ---------- */
@@ -387,7 +406,6 @@ header {
   .layout {
     grid-template-columns: 1fr;
     grid-template-rows: 1fr;
-    height: calc(100vh - 105px);
   }
 
   #map {
@@ -408,6 +426,7 @@ header {
     max-height: none;
     overflow-y: auto;
     border-right: none;
+    padding-bottom: 5rem;
   }
 
   header {
@@ -418,8 +437,9 @@ header {
     padding: 0.75rem 1rem;
   }
 
-  .tagline {
-    display: none;
+  .submit-event-btn {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.8rem;
   }
 
   .view-toggle {
