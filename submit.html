@@ -16,27 +16,31 @@
   <main>
     <div class="form-container">
       <h1 class="page-title">Submit an Event</h1>
-      <p class="page-desc">Know hidden culture in Helsinki? Share an event with us. We review all submissions before publishing.</p>
+      <p class="page-desc">Ready to claim your place as Helsinki's top hidden gem?💎</p>
 
-      <form id="submitForm">
+      <form id="submitForm" novalidate>
         <div class="field">
           <label>Event name *</label>
-          <input type="text" id="title" placeholder="e.g. Rooftop Vinyl Night" required />
+          <input type="text" id="title" placeholder="e.g. Rooftop Vinyl Night" />
+          <div class="field-error" id="title-error"></div>
         </div>
 
         <div class="field">
           <label>Description *</label>
-          <textarea id="description" rows="4" placeholder="Tell us briefly what happens at this event..." required></textarea>
+          <textarea id="description" rows="4" placeholder="Tell us briefly what happens at this event..."></textarea>
+          <div class="field-error" id="description-error"></div>
         </div>
 
         <div class="row">
           <div class="field">
             <label>Date *</label>
-            <input type="date" id="date" required />
+            <input type="date" id="date" />
+            <div class="field-error" id="date-error"></div>
           </div>
           <div class="field">
             <label>Start time *</label>
-            <input type="time" id="time" required />
+            <input type="time" id="time" />
+            <div class="field-error" id="time-error"></div>
           </div>
         </div>
 
@@ -47,19 +51,21 @@
 
         <div class="field">
           <label>Location *</label>
-          <input type="text" id="location" placeholder="Exact address" required />
+          <input type="text" id="location" placeholder="Exact address" />
+          <div class="field-error" id="location-error"></div>
         </div>
 
         <div class="field">
           <label>Event link *</label>
-          <input type="url" id="link" placeholder="https://..." required />
+          <input type="text" id="link" placeholder="https://..." />
+          <div class="field-error" id="link-error"></div>
         </div>
 
         <div class="field">
           <label>Is it free? *</label>
           <div class="radio-group">
             <label class="radio-label">
-              <input type="radio" name="free" value="yes" required />
+              <input type="radio" name="free" value="yes" />
               <span class="radio-box"></span>
               Yes, free
             </label>
@@ -69,13 +75,14 @@
               No, paid
             </label>
           </div>
+          <div class="field-error" id="free-error"></div>
         </div>
 
         <div class="field">
           <label>Signup required? *</label>
           <div class="radio-group">
             <label class="radio-label">
-              <input type="radio" name="signup" value="yes" required />
+              <input type="radio" name="signup" value="yes" />
               <span class="radio-box"></span>
               Yes
             </label>
@@ -85,11 +92,13 @@
               No
             </label>
           </div>
+          <div class="field-error" id="signup-error"></div>
         </div>
 
         <div class="field">
           <label>Your email *</label>
-          <input type="email" id="submitter_email" placeholder="your@email.com" required />
+          <input type="text" id="submitter_email" placeholder="your@email.com" />
+          <div class="field-error" id="submitter_email-error"></div>
           <div class="field-hint">We'll only use this to confirm your submission. We won't publish it.</div>
         </div>
 

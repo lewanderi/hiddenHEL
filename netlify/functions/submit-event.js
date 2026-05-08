@@ -37,19 +37,22 @@ exports.handler = async (event) => {
 
     const sheet = doc.sheetsByIndex[0]; // First sheet
 
-    // Add row to sheet
+    // Add row to sheet (matching internal Supabase format)
     await sheet.addRow({
-      Timestamp: new Date().toISOString(),
-      Title: data.title,
-      Date: data.date,
-      'Start Time': data.time,
-      'End Time': data.end_time || '',
-      Description: data.description,
-      Location: data.location,
-      Link: data.link,
-      Free: data.free,
-      'Signup Required': data.signup_required,
-      'Submitter Email': data.submitter_email
+      status: 'pending',
+      title: data.title,
+      date: data.date,
+      time: data.time,
+      end_time: data.end_time || '',
+      description: data.description,
+      location_name: data.location,
+      link: data.link,
+      lat: '',
+      lng: '',
+      is_free: data.free,
+      signup_required: data.signup_required,
+      timestamp: new Date().toISOString(),
+      submitter_email: data.submitter_email
     });
 
     return {

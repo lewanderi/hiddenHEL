@@ -149,6 +149,22 @@ main {
   line-height: 1.4;
 }
 
+.field-error {
+  display: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--pink);
+}
+
+.field-error.show {
+  display: block;
+}
+
+.field input.invalid,
+.field textarea.invalid {
+  border-color: var(--pink);
+}
+
 .row {
   display: grid;
   grid-template-columns: 1fr 1fr;
