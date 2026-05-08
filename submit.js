@@ -26,7 +26,7 @@ form.addEventListener('submit', async (e) => {
 
   // Disable submit button
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Lähetetään...';
+  submitBtn.textContent = 'Sending...';
 
   try {
     const response = await fetch('/.netlify/functions/submit-event', {
@@ -41,7 +41,7 @@ form.addEventListener('submit', async (e) => {
 
     if (response.ok) {
       // Success
-      successMsg.textContent = `✓ Kiitos ehdotuksesta! Tarkistamme sen ja olemme yhteydessä osoitteeseen ${formData.submitter_email}.`;
+      successMsg.textContent = `✓ Thanks for the submission! We'll check it and contact ${formData.submitter_email} in case of a problem.`;
       successMsg.classList.add('show');
       
       // Reset form
@@ -50,14 +50,14 @@ form.addEventListener('submit', async (e) => {
       // Scroll to success message
       successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } else {
-      throw new Error(result.error || 'Jotain meni pieleen');
+      throw new Error(result.error || 'something went wrong');
     }
   } catch (error) {
     console.error('Submission error:', error);
-    errorMsg.textContent = 'Tapahtuman lähetys epäonnistui. Yritä uudelleen.';
+    errorMsg.textContent = 'Unsuccessful🙁 Try again or contact hiddenhelfi@gmail.com';
     errorMsg.classList.add('show');
   } finally {
     submitBtn.disabled = false;
-    submitBtn.textContent = 'Lähetä ehdotus';
+    submitBtn.textContent = 'Submit';
   }
 });
