@@ -150,18 +150,21 @@ const freeTag = e.is_free === true  ? '<span class="event-tag event-tag-free">FR
         </div>
         <div class="popup-title">${e.title}</div>
         <div class="popup-desc">${e.desc}</div>
-        <a href="https://www.google.com/maps?q=${e.lat},${e.lng}" target="_blank" class="popup-location">
+        <a href="https://www.google.com/maps?q=${e.lat},${e.lng}" target="_blank" class="popup-location" onclick="plausible('Google Maps Click', {props: {title: '${e.title}'}})">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
           ${e.location}
         </a>
         <div class="popup-footer">
-          ${e.link ? `<a href="${e.link}" target="_blank" class="popup-link-btn">Event link <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 9L9 3M9 3H4.5M9 3V7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>` : ''}
+          ${e.link ? `<a href="${e.link}" target="_blank" class="popup-link-btn" onclick="plausible('External Link Click', {props: {title: '${e.title}'}})">Event link <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 9L9 3M9 3H4.5M9 3V7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>` : ''}
           ${freeTag}${signupTag}
         </div>
       </div>
     `, { className: 'custom-popup', closeButton: false, maxWidth: Math.min(260, window.innerWidth - 80) });
 
-    marker.on('click', () => selectEvent(e.id));
+    marker.on('click', () => {
+      plausible('Map Marker Click', {props: {title: e.title}});
+      selectEvent(e.id);
+    });
     markers[e.id] = marker;
   });
 }
@@ -192,7 +195,11 @@ function renderList(filtered) {
   }).join('');
 
   panel.querySelectorAll('.event-card').forEach(card => {
-    card.addEventListener('click', () => selectEvent(parseInt(card.dataset.id)));
+    card.addEventListener('click', () => {
+      const e = filtered.find(ev => ev.id === parseInt(card.dataset.id));
+      plausible('Event Card Click', {props: {title: e.title}});
+      selectEvent(parseInt(card.dataset.id));
+    });
   });
 }
 
@@ -255,6 +262,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.classList.add('active');
     activeFilter = btn.dataset.filter;
     activeId = null;
+    plausible('Filter Click', {props: {filter: btn.dataset.filter}});
     render();
   });
 });
@@ -268,6 +276,7 @@ document.querySelectorAll('.toggle-btn').forEach(btn => {
     const layout = document.getElementById('layout');
     layout.classList.toggle('list-mode', btn.dataset.view === 'list');
     if (btn.dataset.view === 'map') map.invalidateSize();
+    plausible('View Toggle', {props: {view: btn.dataset.view}});
   });
 });
 

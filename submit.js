@@ -45,7 +45,7 @@ function validate() {
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
-
+  plausible('Form Submitted');
   clearErrors();
   successMsg.classList.remove('show');
   errorMsg.classList.remove('show');
@@ -78,6 +78,7 @@ form.addEventListener('submit', async (e) => {
     const result = await response.json();
 
     if (response.ok) {
+      plausible('Form Submit Success');
       successMsg.textContent = `✓ Thanks for the submission! We'll check it and contact ${formData.submitter_email} in case of a problem.`;
       successMsg.classList.add('show');
       form.reset();

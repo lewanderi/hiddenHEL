@@ -1,20 +1,3 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-:root {
-  --black: #0a0a0a;
-  --white: #f5f2ee;
-  --pink: #fc90e0;
-  /* blue #008fff; */
-  --gray: #1a1a1a;
-  --muted: #999;
-  --font-display: 'Lato', sans-serif;
-  --font-body: 'Lato', sans-serif;
-}
-
 body {
   background: var(--black);
   color: var(--white);
@@ -26,31 +9,6 @@ body {
 }
 
 /* ---------- Header ---------- */
-
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.2rem 2rem;
-  border-bottom: 1px solid #1f1f1f;
-  position: sticky;
-  top: 0;
-  background: var(--black);
-  z-index: 1000;
-}
-
-.logo {
-  font-family: 'Basement Grotesque';
-  font-weight: 900;
-  font-size: 2rem;
-  letter-spacing: -0.02em;
-  color: var(--white);
-  text-decoration: none;
-}
-
-.logo span {
-  color: var(--pink);
-}
 
 .submit-event-btn {
   background: var(--pink);
@@ -427,10 +385,6 @@ header {
     overflow-y: auto;
     border-right: none;
     padding-bottom: 5rem;
-  }
-
-  header {
-    padding: 1rem;
   }
 
   .filters {
