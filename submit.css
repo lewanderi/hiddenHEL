@@ -50,6 +50,8 @@ main {
   gap: 0.5rem;
 }
 
+.field label .req { color: var(--pink); }
+
 .field label {
   font-size: 0.75rem;
   font-weight: 700;

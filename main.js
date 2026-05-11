@@ -66,10 +66,13 @@ function getFilteredEvents(filter) {
   return events.filter(e => {
     const d = new Date(e.date);
     if (d < today) return false;
-    if (filter === 'today')   return d >= today && d < new Date(today.getTime() + 86400000);
-    if (filter === 'weekend') return d >= friday && d <= new Date(sunday.getTime() + 86400000);
-    if (filter === 'week')    return d >= today && d <= endOfWeek;
-    return true;
+    const tomorrow = new Date(today.getTime() + 86400000);
+    if (filter === 'today')    return d >= today && d < tomorrow;
+    if (filter === 'tomorrow') return d >= tomorrow && d < new Date(tomorrow.getTime() + 86400000);
+    if (filter === 'week')     return d >= today && d <= endOfWeek;
+    const cutoff = new Date(today);
+    cutoff.setDate(today.getDate() + 30);
+    return d >= today && d <= cutoff;
   }).sort((a, b) => new Date(a.date) - new Date(b.date));
 }
 
@@ -285,4 +288,6 @@ document.querySelectorAll('.toggle-btn').forEach(btn => {
 fetchEvents().then(data => {
   events = data;
   render();
+  const count = getFilteredEvents('all').length;
+  document.querySelector('[data-filter="all"]').textContent = `All (${count})`;
 });
