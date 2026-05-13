@@ -45,27 +45,28 @@ function formatDateLabel(dateStr) {
 
 // ---------- Filtering ----------
 
+function eventEndsAt(e) {
+  const base = e.date + 'T';
+  if (e.end_time) {
+    const end = new Date(base + e.end_time);
+    const start = new Date(base + e.time);
+    if (end < start) end.setDate(end.getDate() + 1);
+    return end;
+  }
+  return new Date(base + e.time).getTime() + 3 * 60 * 60 * 1000;
+}
+
 function getFilteredEvents(filter) {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const dayOfWeek = today.getDay();
 
-  const daysUntilSat = (6 - dayOfWeek + 7) % 7;
-  const saturday = new Date(today);
-  saturday.setDate(today.getDate() + daysUntilSat);
-
-  const friday = new Date(saturday);
-  friday.setDate(saturday.getDate() - 1);
-
-  const sunday = new Date(saturday);
-  sunday.setDate(saturday.getDate() + 1);
-
   const endOfWeek = new Date(today);
-  endOfWeek.setDate(today.getDate() + (7 - dayOfWeek));
+  endOfWeek.setDate(today.getDate() + (7 - dayOfWeek) % 7);
 
   return events.filter(e => {
+    if (eventEndsAt(e) < now) return false;
     const d = new Date(e.date);
-    if (d < today) return false;
     const tomorrow = new Date(today.getTime() + 86400000);
     if (filter === 'today')    return d >= today && d < tomorrow;
     if (filter === 'tomorrow') return d >= tomorrow && d < new Date(tomorrow.getTime() + 86400000);
@@ -73,7 +74,7 @@ function getFilteredEvents(filter) {
     const cutoff = new Date(today);
     cutoff.setDate(today.getDate() + 30);
     return d >= today && d <= cutoff;
-  }).sort((a, b) => new Date(a.date) - new Date(b.date));
+  }).sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
 }
 
 // ---------- Map setup ----------
@@ -290,4 +291,27 @@ fetchEvents().then(data => {
   render();
   const count = getFilteredEvents('all').length;
   document.querySelector('[data-filter="all"]').textContent = `All (${count})`;
+});
+
+// ---------- Welcome Overlay ----------
+
+const overlay = document.getElementById('welcome-overlay');
+if (localStorage.getItem('hiddenhelIntroSeen')) {
+  overlay.style.display = 'none';
+}
+
+function closeOverlay() {
+  localStorage.setItem('hiddenhelIntroSeen', 'true');
+  overlay.style.display = 'none';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && overlay.style.display !== 'none') closeOverlay();
+});
+
+let canCloseOnBackdrop = false;
+setTimeout(() => { canCloseOnBackdrop = true; }, 1500);
+
+overlay.addEventListener('click', e => {
+  if (e.target === overlay && canCloseOnBackdrop) closeOverlay();
 });

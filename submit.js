@@ -60,8 +60,8 @@ form.addEventListener('submit', async (e) => {
     description: document.getElementById('description').value.trim(),
     location: document.getElementById('location').value.trim(),
     link: document.getElementById('link').value.trim(),
-    free: document.querySelector('input[name="free"]:checked').value === 'yes' ? 'Kyllä' : 'Ei',
-    signup_required: document.querySelector('input[name="signup"]:checked').value === 'yes' ? 'Kyllä' : 'Ei',
+    free: document.querySelector('input[name="free"]:checked').value === 'yes',
+    signup_required: document.querySelector('input[name="signup"]:checked').value === 'yes',
     submitter_email: document.getElementById('submitter_email').value.trim()
   };
 
