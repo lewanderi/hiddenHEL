@@ -63,10 +63,11 @@ function getFilteredEvents(filter) {
 
   const endOfWeek = new Date(today);
   endOfWeek.setDate(today.getDate() + (7 - dayOfWeek) % 7);
+  endOfWeek.setHours(23, 59, 59, 999);
 
   return events.filter(e => {
     if (eventEndsAt(e) < now) return false;
-    const d = new Date(e.date);
+    const d = new Date(e.date + 'T12:00:00');
     const tomorrow = new Date(today.getTime() + 86400000);
     if (filter === 'today')    return d >= today && d < tomorrow;
     if (filter === 'tomorrow') return d >= tomorrow && d < new Date(tomorrow.getTime() + 86400000);
