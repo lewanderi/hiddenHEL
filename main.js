@@ -4,7 +4,7 @@ const SUPABASE_URL = 'https://oycvxtvlhtajrnvddlhp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95Y3Z4dHZsaHRhanJudmRkbGhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NzkzNTcsImV4cCI6MjA5MjU1NTM1N30.yBfTpwV9ixF0ImfovAx1CHVLgDMRBc21u3rCB3QMFZk';
 
 async function fetchEvents() {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/events?status=eq.approved&select=*`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/public_events?status=eq.approved&select=id,title,date,time,end_time,description,location_name,link,lat,lng,status,is_free,signup_required`, {
     headers: {
       'apikey': SUPABASE_ANON_KEY,
       'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
