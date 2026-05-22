@@ -4,8 +4,7 @@ const SUPABASE_URL = 'https://oycvxtvlhtajrnvddlhp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95Y3Z4dHZsaHRhanJudmRkbGhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NzkzNTcsImV4cCI6MjA5MjU1NTM1N30.yBfTpwV9ixF0ImfovAx1CHVLgDMRBc21u3rCB3QMFZk';
 
 async function fetchEvents() {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/public_events?status=eq.approved&select=id,title,date,time,end_time,description,location_name,link,lat,lng,status,is_free,signup_required`, {
-    headers: {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/public_events?status=eq.approved&select=id,title,date,end_date,time,end_time,description,location_name,link,lat,lng,status,is_free,signup_required`, {    headers: {
       'apikey': SUPABASE_ANON_KEY,
       'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
     }
@@ -17,6 +16,7 @@ async function fetchEvents() {
     id: e.id,
     title: e.title,
     date: e.date,
+    end_date: e.end_date || null,
     dateLabel: formatDateLabel(e.date),
     time: e.time || '',
     end_time: e.end_time || null,
@@ -43,6 +43,11 @@ function formatDateLabel(dateStr) {
   return `${weekday}, ${d.getDate()}.${d.getMonth() + 1}.`;
 }
 
+function formatEndDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return `${d.toLocaleDateString('en-GB', { weekday: 'short' })} ${d.getDate()}.${d.getMonth() + 1}.`;
+}
+
 // ---------- Filtering ----------
 
 function eventEndsAt(e) {
@@ -53,12 +58,13 @@ function eventEndsAt(e) {
     if (end < start) end.setDate(end.getDate() + 1);
     return end;
   }
-  return new Date(base + e.time).getTime() + 3 * 60 * 60 * 1000;
+  return new Date(new Date(base + e.time).getTime() + 3 * 60 * 60 * 1000);
 }
 
 function getFilteredEvents(filter) {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const todayStr = today.toISOString().split('T')[0];
   const dayOfWeek = today.getDay();
 
   const endOfWeek = new Date(today);
@@ -66,14 +72,33 @@ function getFilteredEvents(filter) {
   endOfWeek.setHours(23, 59, 59, 999);
 
   return events.filter(e => {
-    if (eventEndsAt(e) < now) return false;
+    // For multiday events, check if today falls within the range
+    const isMultiday = !!e.end_date;
+    if (isMultiday) {
+      if (e.end_date < todayStr) return false; // already ended
+    } else {
+      if (eventEndsAt(e) < now) return false;
+    }
+
     const d = new Date(e.date + 'T12:00:00');
     const tomorrow = new Date(today.getTime() + 86400000);
-    if (filter === 'today')    return d >= today && d < tomorrow;
-    if (filter === 'tomorrow') return d >= tomorrow && d < new Date(tomorrow.getTime() + 86400000);
-    if (filter === 'week')     return d >= today && d <= endOfWeek;
+
+    if (filter === 'today') {
+      if (isMultiday) return e.date <= todayStr && e.end_date >= todayStr;
+      return d >= today && d < tomorrow;
+    }
+    if (filter === 'tomorrow') {
+      const tomorrowStr = tomorrow.toISOString().split('T')[0];
+      if (isMultiday) return e.date <= tomorrowStr && e.end_date >= tomorrowStr;
+      return d >= tomorrow && d < new Date(tomorrow.getTime() + 86400000);
+    }
+    if (filter === 'week') {
+      if (isMultiday) return e.date <= endOfWeek.toISOString().split('T')[0] && e.end_date >= todayStr;
+      return d >= today && d <= endOfWeek;
+    }
     const cutoff = new Date(today);
     cutoff.setDate(today.getDate() + 30);
+    if (isMultiday) return e.date <= cutoff.toISOString().split('T')[0] && e.end_date >= todayStr;
     return d >= today && d <= cutoff;
   }).sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
 }
@@ -150,7 +175,7 @@ const freeTag = e.is_free === true  ? '<span class="event-tag event-tag-free">FR
     marker.bindPopup(`
       <div class="popup-inner">
         <div class="popup-meta">
-          <div class="popup-date-badge">${new Date(e.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short' })} ${e.date.split('-').reverse().join('.')}</div>
+          <div class="popup-date-badge">${new Date(e.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short' })} ${e.date.split('-').reverse().join('.')}${e.end_date ? ' – ' + formatEndDate(e.end_date) : ''}</div>
           ${e.time ? `<div class="popup-time-box"><div class="popup-time">${e.time}${e.end_time ? '–' + e.end_time : ''}</div></div>` : ''}
         </div>
         <div class="popup-title">${e.title}</div>
@@ -191,7 +216,7 @@ function renderList(filtered) {
     const signupTag = e.signup_required ? '<span class="event-tag event-tag-signup">SIGNUP</span>' : '';
     return `
     <div class="event-card ${activeId === e.id ? 'active' : ''}" data-id="${e.id}">
-      <div class="card-date">${e.dateLabel} <span class="card-time">${e.time}${e.end_time ? '–' + e.end_time : ''}</span></div>
+      <div class="card-date">${e.dateLabel}${e.end_date ? ' – ' + formatEndDate(e.end_date) : ''} ${!e.end_date && e.time ? `<span class="card-time">${e.time}${e.end_time ? '–' + e.end_time : ''}</span>` : ''}</div>
       <div class="card-title">${e.title}</div>
       <div class="card-desc">${e.desc}</div>
       <div class="card-location">${e.location}${freeTag}${signupTag}</div>
