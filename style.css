@@ -588,6 +588,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  min-width: 0;
 }
 
 .custom-dates-field label {
@@ -618,6 +619,8 @@ body {
 
 .custom-dates-field input[type="date"] {
   color-scheme: dark;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .custom-dates-footer {
