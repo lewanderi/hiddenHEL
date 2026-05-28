@@ -96,6 +96,15 @@ function getFilteredEvents(filter) {
       if (isMultiday) return e.date <= endOfWeek.toISOString().split('T')[0] && e.end_date >= todayStr;
       return d >= today && d <= endOfWeek;
     }
+    if (filter === 'custom') {
+      const startEl = document.getElementById('customStartDate');
+      const endEl = document.getElementById('customEndDate');
+      if (!startEl || !endEl || !startEl.value || !endEl.value) return false;
+      const start = new Date(startEl.value + 'T00:00:00');
+      const end = new Date(endEl.value + 'T23:59:59');
+      if (isMultiday) return e.date <= endEl.value && e.end_date >= startEl.value;
+      return d >= start && d <= end;
+    }
     const cutoff = new Date(today);
     cutoff.setDate(today.getDate() + 30);
     if (isMultiday) return e.date <= cutoff.toISOString().split('T')[0] && e.end_date >= todayStr;
@@ -286,7 +295,7 @@ map.on('zoomend', () => {
 
 // ---------- Filter buttons ----------
 
-document.querySelectorAll('.filter-btn').forEach(btn => {
+document.querySelectorAll('.filter-btn:not(#customDatesBtn)').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -340,4 +349,77 @@ setTimeout(() => { canCloseOnBackdrop = true; }, 1500);
 
 overlay.addEventListener('click', e => {
   if (e.target === overlay && canCloseOnBackdrop) closeOverlay();
+});
+
+// ---------- Custom Date Range Filter ----------
+
+const customDatesBtn = document.getElementById('customDatesBtn');
+const customDatesModal = document.getElementById('customDatesModal');
+const customDatesCloseBtn = document.getElementById('customDatesCloseBtn');
+const customDatesClearBtn = document.getElementById('customDatesClearBtn');
+const customDatesSearchBtn = document.getElementById('customDatesSearchBtn');
+const customStartDate = document.getElementById('customStartDate');
+const customEndDate = document.getElementById('customEndDate');
+
+// Pre-fill today and +7 days as a convenience
+const _today = new Date();
+const _plus7 = new Date(_today.getTime() + 7 * 86400000);
+customStartDate.value = _today.toISOString().split('T')[0];
+customEndDate.value = _plus7.toISOString().split('T')[0];
+
+function formatShortDate(str) {
+  const [, m, d] = str.split('-');
+  return `${parseInt(d)}.${parseInt(m)}`;
+}
+
+function clearCustomFilter() {
+  customDatesModal.style.display = 'none';
+  customDatesBtn.textContent = 'Custom dates';
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-filter="all"]').classList.add('active');
+  activeFilter = 'all';
+  activeId = null;
+  render();
+}
+
+customDatesBtn.addEventListener('click', () => {
+  if (activeFilter === 'custom') {
+    clearCustomFilter();
+    return;
+  }
+  plausible('Custom Date Range Click');
+  customDatesModal.style.display = 'flex';
+});
+
+customDatesCloseBtn.addEventListener('click', () => {
+  customDatesModal.style.display = 'none';
+});
+
+customDatesModal.addEventListener('click', (e) => {
+  if (e.target === customDatesModal) customDatesModal.style.display = 'none';
+});
+
+customDatesClearBtn.addEventListener('click', clearCustomFilter);
+
+customDatesSearchBtn.addEventListener('click', () => {
+  const start = customStartDate.value;
+  const end = customEndDate.value;
+
+  if (!start || !end) {
+    alert('Please select both start and end dates');
+    return;
+  }
+  if (start > end) {
+    alert('Start date must be before end date');
+    return;
+  }
+
+  plausible('Custom Date Search', {props: {startDate: start, endDate: end}});
+  customDatesModal.style.display = 'none';
+  customDatesBtn.textContent = `${formatShortDate(start)}–${formatShortDate(end)} ✕`;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  customDatesBtn.classList.add('active');
+  activeFilter = 'custom';
+  activeId = null;
+  render();
 });

@@ -41,6 +41,30 @@
     <button class="filter-btn" data-filter="today">Today</button>
     <button class="filter-btn" data-filter="tomorrow">Tomorrow</button>
     <button class="filter-btn" data-filter="week">This week</button>
+    <button class="filter-btn" id="customDatesBtn">Custom dates</button>
+  </div>
+
+  <div class="custom-dates-modal" id="customDatesModal" style="display: none;">
+    <div class="custom-dates-content">
+      <div class="custom-dates-header">
+        <h3>Select date range</h3>
+        <button class="custom-dates-close" id="customDatesCloseBtn">✕</button>
+      </div>
+      <div class="custom-dates-body">
+        <div class="custom-dates-field">
+          <label>From</label>
+          <input type="date" id="customStartDate" />
+        </div>
+        <div class="custom-dates-field">
+          <label>To</label>
+          <input type="date" id="customEndDate" />
+        </div>
+      </div>
+      <div class="custom-dates-footer">
+        <button class="custom-dates-clear-btn" id="customDatesClearBtn">Clear</button>
+        <button class="custom-dates-search-btn" id="customDatesSearchBtn">Search</button>
+      </div>
+    </div>
   </div>
 
   <div class="layout" id="layout">

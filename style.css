@@ -524,3 +524,142 @@ body {
 .popup-link:hover {
   opacity: 0.75;
 }
+
+/* ---------- Custom dates modal ---------- */
+
+.custom-dates-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.custom-dates-content {
+  background: var(--black);
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+}
+
+.custom-dates-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.custom-dates-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--white);
+  margin: 0;
+}
+
+.custom-dates-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.custom-dates-close:hover {
+  opacity: 1;
+}
+
+.custom-dates-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.custom-dates-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.custom-dates-field label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.custom-dates-field input {
+  background: var(--gray);
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 0.85rem;
+  transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.custom-dates-field input:focus {
+  outline: none;
+  border-color: var(--pink);
+}
+
+.custom-dates-field input[type="date"] {
+  color-scheme: dark;
+}
+
+.custom-dates-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.custom-dates-clear-btn,
+.custom-dates-search-btn {
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 0.85rem;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  letter-spacing: 0.02em;
+}
+
+.custom-dates-clear-btn {
+  background: #2a2a2a;
+  color: var(--white);
+}
+
+.custom-dates-clear-btn:hover {
+  opacity: 0.88;
+}
+
+.custom-dates-search-btn {
+  background: var(--pink);
+  color: var(--black);
+}
+
+.custom-dates-search-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 700px) {
+  .custom-dates-body {
+    grid-template-columns: 1fr;
+  }
+}
