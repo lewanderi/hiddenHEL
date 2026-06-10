@@ -39,7 +39,6 @@ exports.handler = async (event) => {
 
     // Add row to sheet (matching internal Supabase format)
     await sheet.addRow({
-      status: 'pending',
       title: data.title,
       date: data.date,
       time: data.time,

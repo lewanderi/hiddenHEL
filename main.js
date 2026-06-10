@@ -4,7 +4,7 @@ const SUPABASE_URL = 'https://oycvxtvlhtajrnvddlhp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95Y3Z4dHZsaHRhanJudmRkbGhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NzkzNTcsImV4cCI6MjA5MjU1NTM1N30.yBfTpwV9ixF0ImfovAx1CHVLgDMRBc21u3rCB3QMFZk';
 
 async function fetchEvents() {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/public_events?status=eq.approved&select=id,title,date,end_date,time,end_time,description,location_name,link,lat,lng,status,is_free,signup_required`, {    headers: {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/public_events?select=id,title,date,end_date,time,end_time,description,location_name,link,lat,lng,is_free,signup_required`, {    headers: {
       'apikey': SUPABASE_ANON_KEY,
       'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
     }
@@ -171,6 +171,7 @@ function renderMarkers(filtered) {
   Object.keys(markers).forEach(k => delete markers[k]);
 
   filtered.forEach(e => {
+    if (e.lat == null || e.lng == null) return;
     const marker = L.marker([e.lat, e.lng], {
       icon: createMarkerIcon(activeId === e.id)
     });
@@ -323,9 +324,9 @@ document.querySelectorAll('.toggle-btn').forEach(btn => {
 
 fetchEvents().then(data => {
   events = data;
-  render();
   const count = getFilteredEvents('all').length;
   document.querySelector('[data-filter="all"]').textContent = `All (${count})`;
+  render();
 });
 
 // ---------- Welcome Overlay ----------
