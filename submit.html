@@ -108,6 +108,21 @@
         </div>
 
         <div class="field">
+          <label>Category <span class="req">*</span></label>
+          <select id="category">
+            <option value="">Select a category...</option>
+            <option value="Music">Music</option>
+            <option value="Culture">Culture</option>
+            <option value="Workshop">Workshop</option>
+            <option value="Pop-up">Pop-up</option>
+            <option value="Food & Drinks">Food & Drinks</option>
+            <option value="Sports & Wellbeing">Sports & Wellbeing</option>
+            <option value="Other">Other</option>
+          </select>
+          <div class="field-error" id="category-error"></div>
+        </div>
+
+        <div class="field">
           <label>Your email <span class="req">*</span></label>
           <input type="text" id="submitter_email" placeholder="your@email.com" />
           <div class="field-error" id="submitter_email-error"></div>

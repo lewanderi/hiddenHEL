@@ -4,7 +4,7 @@ const SUPABASE_URL = 'https://oycvxtvlhtajrnvddlhp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95Y3Z4dHZsaHRhanJudmRkbGhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NzkzNTcsImV4cCI6MjA5MjU1NTM1N30.yBfTpwV9ixF0ImfovAx1CHVLgDMRBc21u3rCB3QMFZk';
 
 async function fetchEvents() {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/public_events?select=id,title,date,end_date,time,end_time,description,location_name,link,lat,lng,is_free,signup_required`, {    headers: {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/public_events?select=id,title,date,end_date,time,end_time,description,location_name,link,lat,lng,is_free,signup_required,category`, {    headers: {
       'apikey': SUPABASE_ANON_KEY,
       'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
     }
@@ -26,7 +26,8 @@ async function fetchEvents() {
     lng: e.lng,
     link: e.link || null,
     is_free: e.is_free ?? null,
-    signup_required: e.signup_required ?? false
+    signup_required: e.signup_required ?? false,
+    category: e.category || null
   }));
 }
 
@@ -72,6 +73,8 @@ function getFilteredEvents(filter) {
   endOfWeek.setHours(23, 59, 59, 999);
 
   return events.filter(e => {
+    if (activeCategory !== 'all' && e.category !== activeCategory) return false;
+
     // For multiday events, check if today falls within the range
     const isMultiday = !!e.end_date;
     if (isMultiday) {
@@ -185,7 +188,10 @@ const freeTag = e.is_free === true  ? '<span class="event-tag event-tag-free">FR
     marker.bindPopup(`
       <div class="popup-inner">
         <div class="popup-meta">
-          <div class="popup-date-badge">${new Date(e.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short' })} ${e.date.split('-').reverse().join('.')}${e.end_date ? ' – ' + formatEndDate(e.end_date) : ''}</div>
+          <div>
+            ${e.category ? `<span class="popup-category">${e.category}</span>` : ''}
+            <div class="popup-date-badge">${new Date(e.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short' })} ${e.date.split('-').reverse().join('.')}${e.end_date ? ' – ' + formatEndDate(e.end_date) : ''}</div>
+          </div>
           ${e.time ? `<div class="popup-time-box"><div class="popup-time">${e.time}${e.end_time ? '–' + e.end_time : ''}</div></div>` : ''}
         </div>
         <div class="popup-title">${e.title}</div>
@@ -226,6 +232,7 @@ function renderList(filtered) {
     const signupTag = e.signup_required ? '<span class="event-tag event-tag-signup">SIGNUP</span>' : '';
     return `
     <div class="event-card ${activeId === e.id ? 'active' : ''}" data-id="${e.id}">
+      ${e.category ? `<div class="event-card-category">${e.category}</div>` : ''}
       <div class="card-date">${e.dateLabel}${e.end_date ? ' – ' + formatEndDate(e.end_date) : ''} ${!e.end_date && e.time ? `<span class="card-time">${e.time}${e.end_time ? '–' + e.end_time : ''}</span>` : ''}</div>
       <div class="card-title">${e.title}</div>
       <div class="card-desc">${e.desc}</div>
@@ -246,6 +253,7 @@ function renderList(filtered) {
 // ---------- State ----------
 
 let activeFilter = 'all';
+let activeCategory = 'all';
 let activeId = null;
 let events = [];
 
@@ -303,6 +311,19 @@ document.querySelectorAll('.filter-btn:not(#customDatesBtn)').forEach(btn => {
     activeFilter = btn.dataset.filter;
     activeId = null;
     plausible('Filter Click', {props: {filter: btn.dataset.filter}});
+    render();
+  });
+});
+
+// ---------- Category filter buttons ----------
+
+document.querySelectorAll('.category-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeCategory = btn.dataset.category;
+    activeId = null;
+    plausible('Category Filter Click', {props: {category: btn.dataset.category}});
     render();
   });
 });

@@ -24,7 +24,7 @@ function clearErrors() {
 function validate() {
   let valid = true;
 
-  ['title', 'description', 'date', 'time', 'location', 'link', 'submitter_email'].forEach(id => {
+  ['title', 'description', 'date', 'time', 'location', 'link', 'category', 'submitter_email'].forEach(id => {
     if (!document.getElementById(id).value.trim()) {
       showFieldError(id, 'Please fill this in');
       valid = false;
@@ -62,6 +62,7 @@ form.addEventListener('submit', async (e) => {
     link: document.getElementById('link').value.trim(),
     free: document.querySelector('input[name="free"]:checked').value === 'yes',
     signup_required: document.querySelector('input[name="signup"]:checked').value === 'yes',
+    category: document.getElementById('category').value,
     submitter_email: document.getElementById('submitter_email').value.trim()
   };
 

@@ -15,7 +15,7 @@ exports.handler = async (event) => {
     const data = JSON.parse(event.body);
 
     // Validate required fields
-    const required = ['title', 'date', 'time', 'description', 'location', 'link', 'free', 'signup_required', 'submitter_email'];
+    const required = ['title', 'date', 'time', 'description', 'location', 'link', 'free', 'signup_required', 'category', 'submitter_email'];
     for (const field of required) {
       if (!data[field] && data[field] !== false) {
         return {
@@ -50,6 +50,7 @@ exports.handler = async (event) => {
       lng: '',
       is_free: data.free,
       signup_required: data.signup_required,
+      category: data.category,
       timestamp: new Date().toISOString(),
       submitter_email: data.submitter_email
     });
