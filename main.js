@@ -221,7 +221,7 @@ function renderList(filtered) {
   const panel = document.getElementById('list-panel');
 
   if (filtered.length === 0) {
-    panel.innerHTML = '<div class="empty-state">Ei tapahtumia tällä ajanjaksolla.</div>';
+    panel.innerHTML = '<div class="empty-state">No events during this time. Your chance to shine?💎</div>';
     return;
   }
 
