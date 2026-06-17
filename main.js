@@ -31,6 +31,15 @@ async function fetchEvents() {
   }));
 }
 
+function escHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function formatDateLabel(dateStr) {
   const today = new Date();
   const d = new Date(dateStr);
@@ -115,6 +124,126 @@ function getFilteredEvents(filter) {
   }).sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
 }
 
+// ---------- Favorites ----------
+
+// Favorite IDs stay in localStorage even after an event has ended. In v1 the panel only
+// shows upcoming saved events, so an ended favorite simply won't appear — but its ID is
+// intentionally retained so a future "Past favorites" view can use it.
+function getFavorites() {
+  try { return JSON.parse(localStorage.getItem('hiddenhelFavorites') || '[]'); }
+  catch { return []; }
+}
+function isFavorite(id) { return getFavorites().includes(id); }
+function addFavorite(id) {
+  try {
+    const favs = getFavorites();
+    if (!favs.includes(id)) localStorage.setItem('hiddenhelFavorites', JSON.stringify([...favs, id]));
+  } catch {}
+}
+function removeFavorite(id) {
+  try {
+    localStorage.setItem('hiddenhelFavorites', JSON.stringify(getFavorites().filter(f => f !== id)));
+  } catch {}
+}
+
+function heartSVG() {
+  return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
+}
+
+function getUpcomingFavoriteEvents() {
+  const favIds = getFavorites();
+  const now = new Date();
+  const todayStr = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString().split('T')[0];
+  return events
+    .filter(e => favIds.includes(e.id))
+    .filter(e => (e.end_date ? e.end_date >= todayStr : eventEndsAt(e) >= now))
+    .sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
+}
+
+function updateFavBadge() {
+  const badge = document.getElementById('favCountBadge');
+  const count = getUpcomingFavoriteEvents().length;
+  badge.textContent = count;
+  badge.hidden = count === 0;
+}
+
+function toggleFavoriteById(id) {
+  const adding = !isFavorite(id);
+  if (adding) {
+    addFavorite(id);
+    const e = events.find(ev => ev.id === id);
+    if (e) {
+      // Register 'title' as a custom property in Plausible Site Settings if not already (may be set from Map Marker Click)
+      plausible('Favorite Added', { props: { title: e.title } });
+    }
+  } else {
+    removeFavorite(id);
+  }
+  document.querySelectorAll(`.heart-btn[data-id="${id}"]`).forEach(btn => {
+    btn.classList.toggle('is-fav', adding);
+    btn.setAttribute('aria-label', adding ? 'Remove from favorites' : 'Save to favorites');
+  });
+  updateFavBadge();
+  if (document.getElementById('favPanel').classList.contains('open')) renderFavPanel();
+}
+
+function renderFavPanel() {
+  const listEl = document.getElementById('favPanelList');
+  const upcoming = getUpcomingFavoriteEvents();
+
+  if (upcoming.length === 0) {
+    listEl.innerHTML = '<div class="fav-empty">No favorites yet — tap the heart on any event to save it.</div>';
+    return;
+  }
+
+  listEl.innerHTML = upcoming.map(e => {
+    const freeTag = e.is_free === true  ? '<span class="event-tag event-tag-free">FREE</span>'
+                  : e.is_free === false ? '<span class="event-tag event-tag-paid">PAID</span>'
+                  : '';
+    const signupTag = e.signup_required ? '<span class="event-tag event-tag-signup">SIGNUP</span>' : '';
+    return `
+      <div class="fav-row" data-id="${e.id}">
+        <div class="fav-row-info">
+          ${e.category ? `<div class="event-card-category">${escHtml(e.category)}</div>` : ''}
+          <div class="card-date">${e.dateLabel}${e.end_date ? ' – ' + formatEndDate(e.end_date) : ''} ${!e.end_date && e.time ? `<span class="card-time">${escHtml(e.time)}${e.end_time ? '–' + escHtml(e.end_time) : ''}</span>` : ''}</div>
+          <div class="card-title">${escHtml(e.title)}</div>
+          <div class="card-location">${escHtml(e.location)}${freeTag}${signupTag}</div>
+        </div>
+        <button class="heart-btn is-fav fav-row-heart" data-id="${e.id}" aria-label="Remove from favorites">${heartSVG()}</button>
+      </div>
+    `;
+  }).join('');
+
+  listEl.querySelectorAll('.fav-row').forEach(row => {
+    const id = parseInt(row.dataset.id);
+    row.querySelector('.heart-btn').addEventListener('click', ev => {
+      ev.stopPropagation();
+      toggleFavoriteById(id);
+    });
+    row.addEventListener('click', () => {
+      closeFavPanel();
+      selectEvent(id);
+    });
+  });
+}
+
+function openFavPanel() {
+  const panel = document.getElementById('favPanel');
+  panel.classList.add('open');
+  panel.setAttribute('aria-hidden', 'false');
+  document.getElementById('favFloatBtn').classList.add('active');
+  document.getElementById('favFloatBtn').setAttribute('aria-label', 'Close favorites');
+  renderFavPanel();
+}
+
+function closeFavPanel() {
+  const panel = document.getElementById('favPanel');
+  panel.classList.remove('open');
+  panel.setAttribute('aria-hidden', 'true');
+  document.getElementById('favFloatBtn').classList.remove('active');
+  document.getElementById('favFloatBtn').setAttribute('aria-label', 'Open favorites');
+}
+
 // ---------- Map setup ----------
 
 const map = L.map('map', {
@@ -184,28 +313,44 @@ const freeTag = e.is_free === true  ? '<span class="event-tag event-tag-free">FR
                 : e.is_free === false ? '<span class="event-tag event-tag-paid">PAID</span>'
                 : '';
     const signupTag = e.signup_required ? '<span class="event-tag event-tag-signup">SIGNUP</span>' : '';
+    const safeLink = e.link && /^https?:\/\//i.test(e.link) ? e.link : null;
 
     marker.bindPopup(`
       <div class="popup-inner">
         <div class="popup-meta">
           <div>
-            ${e.category ? `<span class="popup-category">${e.category}</span>` : ''}
+            ${e.category ? `<span class="popup-category">${escHtml(e.category)}</span>` : ''}
             <div class="popup-date-badge">${new Date(e.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short' })} ${e.date.split('-').reverse().join('.')}${e.end_date ? ' – ' + formatEndDate(e.end_date) : ''}</div>
           </div>
-          ${e.time ? `<div class="popup-time-box"><div class="popup-time">${e.time}${e.end_time ? '–' + e.end_time : ''}</div></div>` : ''}
+          <div class="popup-meta-right">
+            <button class="heart-btn popup-heart${isFavorite(e.id) ? ' is-fav' : ''}" data-id="${e.id}" onclick="event.stopPropagation(); toggleFavoriteById(${e.id});" aria-label="${isFavorite(e.id) ? 'Remove from favorites' : 'Save to favorites'}">${heartSVG()}</button>
+            ${e.time ? `<div class="popup-time-box"><div class="popup-time">${escHtml(e.time)}${e.end_time ? '–' + escHtml(e.end_time) : ''}</div></div>` : ''}
+          </div>
         </div>
-        <div class="popup-title">${e.title}</div>
-        <div class="popup-desc">${e.desc}</div>
-        <a href="https://www.google.com/maps?q=${e.lat},${e.lng}" target="_blank" class="popup-location" onclick="plausible('Google Maps Click', {props: {title: '${e.title}'}})">
+        <div class="popup-title">${escHtml(e.title)}</div>
+        <div class="popup-desc">${escHtml(e.desc)}</div>
+        <a href="https://www.google.com/maps?q=${e.lat},${e.lng}" target="_blank" class="popup-location">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
-          ${e.location}
+          ${escHtml(e.location)}
         </a>
         <div class="popup-footer">
-          ${e.link ? `<a href="${e.link}" target="_blank" class="popup-link-btn" onclick="plausible('External Link Click', {props: {title: '${e.title}'}})">Event link <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 9L9 3M9 3H4.5M9 3V7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>` : ''}
+          ${safeLink ? `<a href="${escHtml(safeLink)}" target="_blank" class="popup-link-btn">Event link <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 9L9 3M9 3H4.5M9 3V7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>` : ''}
           ${freeTag}${signupTag}
         </div>
       </div>
     `, { className: 'custom-popup', closeButton: false, maxWidth: Math.min(260, window.innerWidth - 80) });
+
+    marker.on('popupopen', () => {
+      const el = marker.getPopup().getElement();
+      el.querySelector('.popup-location')?.addEventListener('click', () => {
+        plausible('Google Maps Click', { props: { title: e.title } });
+      });
+      if (safeLink) {
+        el.querySelector('.popup-link-btn')?.addEventListener('click', () => {
+          plausible('External Link Click', { props: { title: e.title } });
+        });
+      }
+    });
 
     marker.on('click', () => {
       plausible('Map Marker Click', {props: {title: e.title}});
@@ -230,13 +375,15 @@ function renderList(filtered) {
                   : e.is_free === false ? '<span class="event-tag event-tag-paid">PAID</span>'
                   : '';
     const signupTag = e.signup_required ? '<span class="event-tag event-tag-signup">SIGNUP</span>' : '';
+    const fav = isFavorite(e.id);
     return `
     <div class="event-card ${activeId === e.id ? 'active' : ''}" data-id="${e.id}">
-      ${e.category ? `<div class="event-card-category">${e.category}</div>` : ''}
-      <div class="card-date">${e.dateLabel}${e.end_date ? ' – ' + formatEndDate(e.end_date) : ''} ${!e.end_date && e.time ? `<span class="card-time">${e.time}${e.end_time ? '–' + e.end_time : ''}</span>` : ''}</div>
-      <div class="card-title">${e.title}</div>
-      <div class="card-desc">${e.desc}</div>
-      <div class="card-location">${e.location}${freeTag}${signupTag}</div>
+      <button class="heart-btn${fav ? ' is-fav' : ''}" data-id="${e.id}" aria-label="${fav ? 'Remove from favorites' : 'Save to favorites'}">${heartSVG()}</button>
+      ${e.category ? `<div class="event-card-category">${escHtml(e.category)}</div>` : ''}
+      <div class="card-date">${e.dateLabel}${e.end_date ? ' – ' + formatEndDate(e.end_date) : ''} ${!e.end_date && e.time ? `<span class="card-time">${escHtml(e.time)}${e.end_time ? '–' + escHtml(e.end_time) : ''}</span>` : ''}</div>
+      <div class="card-title">${escHtml(e.title)}</div>
+      <div class="card-desc">${escHtml(e.desc)}</div>
+      <div class="card-location">${escHtml(e.location)}${freeTag}${signupTag}</div>
     </div>
   `;
   }).join('');
@@ -246,6 +393,13 @@ function renderList(filtered) {
       const e = filtered.find(ev => ev.id === parseInt(card.dataset.id));
       plausible('Event Card Click', {props: {title: e.title}});
       selectEvent(parseInt(card.dataset.id));
+    });
+  });
+
+  panel.querySelectorAll('.heart-btn').forEach(btn => {
+    btn.addEventListener('click', ev => {
+      ev.stopPropagation();
+      toggleFavoriteById(parseInt(btn.dataset.id));
     });
   });
 }
@@ -348,6 +502,7 @@ fetchEvents().then(data => {
   const count = getFilteredEvents('all').length;
   document.querySelector('[data-filter="all"]').textContent = `All (${count})`;
   render();
+  updateFavBadge();
 });
 
 // ---------- Welcome Overlay ----------
@@ -363,7 +518,10 @@ function closeOverlay() {
 }
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && overlay.style.display !== 'none') closeOverlay();
+  if (e.key === 'Escape') {
+    if (document.getElementById('favPanel').classList.contains('open')) { closeFavPanel(); return; }
+    if (overlay.style.display !== 'none') closeOverlay();
+  }
 });
 
 let canCloseOnBackdrop = false;
@@ -467,3 +625,15 @@ customDatesSearchBtn.addEventListener('click', () => {
   activeId = null;
   render();
 });
+
+// ---------- Favorites panel listeners ----------
+
+document.getElementById('favFloatBtn').addEventListener('click', () => {
+  if (document.getElementById('favPanel').classList.contains('open')) {
+    closeFavPanel();
+  } else {
+    openFavPanel();
+  }
+});
+
+document.getElementById('favPanelClose').addEventListener('click', closeFavPanel);

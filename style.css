@@ -420,6 +420,223 @@ body {
   text-align: center;
 }
 
+/* ---------- Map wrap + floating favorites button ---------- */
+
+.map-wrap {
+  position: relative;
+  min-height: 0;
+}
+
+.fav-float-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 900;
+  width: 40px;
+  height: 40px;
+  background: rgba(10, 10, 10, 0.85);
+  border: 1px solid #2a2a2a;
+  border-radius: 50%;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.fav-float-btn:hover,
+.fav-float-btn.active {
+  background: rgba(252, 144, 224, 0.12);
+  border-color: var(--pink);
+  color: var(--pink);
+}
+
+.fav-float-btn:focus-visible {
+  outline: 2px solid var(--pink);
+  outline-offset: 2px;
+}
+
+.fav-count-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: var(--pink);
+  color: var(--black);
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 700;
+  min-width: 17px;
+  height: 17px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* ---------- Heart button (cards + popups) ---------- */
+
+.heart-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.3rem;
+  color: #444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: color 0.15s, transform 0.1s;
+  flex-shrink: 0;
+}
+
+.heart-btn:hover {
+  color: var(--pink);
+  transform: scale(1.2);
+}
+
+.heart-btn.is-fav {
+  color: var(--pink);
+}
+
+.heart-btn.is-fav svg {
+  fill: currentColor;
+}
+
+.heart-btn:focus-visible {
+  outline: 2px solid var(--pink);
+  outline-offset: 2px;
+}
+
+/* Popup heart sits in the meta-right group alongside the time box */
+.popup-meta-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.popup-heart {
+  position: static;
+}
+
+.popup-heart svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ---------- Favorites panel ---------- */
+
+.fav-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 400px;
+  max-width: 100vw;
+  height: 100%;
+  background: var(--black);
+  border-left: 1px solid var(--border);
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.5);
+}
+
+.fav-panel.open {
+  transform: translateX(0);
+}
+
+.fav-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.fav-panel-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.fav-panel-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.fav-panel-close:hover { opacity: 1; }
+
+.fav-panel-close:focus-visible {
+  outline: 2px solid var(--pink);
+  outline-offset: 2px;
+}
+
+.fav-panel-list {
+  overflow-y: auto;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a2a transparent;
+}
+
+.fav-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #141414;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.fav-row:hover { background: #111; }
+
+.fav-row-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.fav-row-heart {
+  position: static;
+  margin-top: 0.1rem;
+}
+
+.fav-empty {
+  padding: 3rem 2rem;
+  color: #444;
+  font-size: 0.85rem;
+  text-align: center;
+  line-height: 1.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fav-panel,
+  .heart-btn,
+  .fav-float-btn { transition: none; }
+}
+
 /* ---------- Map ---------- */
 
 #map {
@@ -598,7 +815,7 @@ body {
     display: none;
   }
 
-  .layout.list-mode #map {
+  .layout.list-mode .map-wrap {
     display: none;
   }
 
@@ -609,6 +826,11 @@ body {
     overflow-y: auto;
     border-right: none;
     padding-bottom: 5rem;
+  }
+
+  .fav-panel {
+    width: 100%;
+    border-left: none;
   }
 
   .filters {
