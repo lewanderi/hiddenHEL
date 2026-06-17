@@ -373,6 +373,22 @@ overlay.addEventListener('click', e => {
   if (e.target === overlay && canCloseOnBackdrop) closeOverlay();
 });
 
+// ---------- Hamburger menu ----------
+
+const hamburgerBtn = document.getElementById('hamburgerBtn');
+const hamburgerMenu = document.getElementById('hamburgerMenu');
+
+hamburgerBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  hamburgerBtn.classList.toggle('open');
+  hamburgerMenu.classList.toggle('open');
+});
+
+document.addEventListener('click', () => {
+  hamburgerBtn.classList.remove('open');
+  hamburgerMenu.classList.remove('open');
+});
+
 // ---------- Custom Date Range Filter ----------
 
 const customDatesBtn = document.getElementById('customDatesBtn');
@@ -388,6 +404,12 @@ const _today = new Date();
 const _plus7 = new Date(_today.getTime() + 7 * 86400000);
 customStartDate.value = _today.toISOString().split('T')[0];
 customEndDate.value = _plus7.toISOString().split('T')[0];
+
+customStartDate.addEventListener('change', () => {
+  if (!customEndDate.value || customEndDate.value < customStartDate.value) {
+    customEndDate.value = customStartDate.value;
+  }
+});
 
 function formatShortDate(str) {
   const [, m, d] = str.split('-');

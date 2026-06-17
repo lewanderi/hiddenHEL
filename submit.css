@@ -115,6 +115,15 @@ main {
   line-height: 1.4;
 }
 
+.hint-link {
+  color: var(--pink);
+  text-decoration: none;
+}
+
+.hint-link:hover {
+  text-decoration: underline;
+}
+
 .field-error {
   display: none;
   font-size: 0.8rem;

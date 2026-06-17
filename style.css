@@ -115,6 +115,85 @@ body {
   transform: translateY(-1px);
 }
 
+/* ---------- Hamburger menu ---------- */
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.hamburger-wrap {
+  position: relative;
+}
+
+.hamburger-btn {
+  background: none;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.15s;
+}
+
+.hamburger-btn:hover {
+  border-color: var(--pink);
+}
+
+.hamburger-btn span {
+  display: block;
+  width: 14px;
+  height: 1.5px;
+  background: var(--muted);
+  border-radius: 2px;
+  transition: background 0.15s;
+}
+
+.hamburger-btn:hover span,
+.hamburger-btn.open span {
+  background: var(--white);
+}
+
+.hamburger-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background: #111;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  min-width: 160px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  z-index: 2000;
+}
+
+.hamburger-menu.open {
+  display: block;
+}
+
+.hamburger-item {
+  display: block;
+  padding: 0.75rem 1.1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  transition: background 0.12s, color 0.12s;
+}
+
+.hamburger-item:hover {
+  background: #1a1a1a;
+  color: var(--white);
+}
+
 /* ---------- Filters ---------- */
 
 .filters {
