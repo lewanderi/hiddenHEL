@@ -552,6 +552,19 @@ document.addEventListener('click', () => {
   hamburgerMenu.classList.remove('open');
 });
 
+// ---------- Contact modal ----------
+
+function openContactModal(e) {
+  e.preventDefault();
+  document.getElementById('contactModal').style.display = 'flex';
+}
+
+function closeContactModal(e) {
+  const modal = document.getElementById('contactModal');
+  if (e && e.target !== modal) return;
+  modal.style.display = 'none';
+}
+
 // ---------- Custom Date Range Filter ----------
 
 const customDatesBtn = document.getElementById('customDatesBtn');
