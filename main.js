@@ -315,7 +315,11 @@ const freeTag = e.is_free === true  ? '<span class="event-tag event-tag-free">FR
     const signupTag = e.signup_required ? '<span class="event-tag event-tag-signup">SIGNUP</span>' : '';
     const safeLink = e.link && /^https?:\/\//i.test(e.link) ? e.link : null;
 
-    marker.bindPopup(`
+    // Arrow function so Leaflet evaluates content fresh on every open —
+    // isFavorite() is called at open time, not at renderMarkers() time.
+    marker.bindPopup(() => {
+      const fav = isFavorite(e.id);
+      return `
       <div class="popup-inner">
         <div class="popup-meta">
           <div>
@@ -323,7 +327,7 @@ const freeTag = e.is_free === true  ? '<span class="event-tag event-tag-free">FR
             <div class="popup-date-badge">${new Date(e.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short' })} ${e.date.split('-').reverse().join('.')}${e.end_date ? ' – ' + formatEndDate(e.end_date) : ''}</div>
           </div>
           <div class="popup-meta-right">
-            <button class="heart-btn popup-heart${isFavorite(e.id) ? ' is-fav' : ''}" data-id="${e.id}" onclick="event.stopPropagation(); toggleFavoriteById(${e.id});" aria-label="${isFavorite(e.id) ? 'Remove from favorites' : 'Save to favorites'}">${heartSVG()}</button>
+            <button class="heart-btn popup-heart${fav ? ' is-fav' : ''}" data-id="${e.id}" onclick="event.stopPropagation(); toggleFavoriteById(${e.id});" aria-label="${fav ? 'Remove from favorites' : 'Save to favorites'}">${heartSVG()}</button>
             ${e.time ? `<div class="popup-time-box"><div class="popup-time">${escHtml(e.time)}${e.end_time ? '–' + escHtml(e.end_time) : ''}</div></div>` : ''}
           </div>
         </div>
@@ -338,7 +342,8 @@ const freeTag = e.is_free === true  ? '<span class="event-tag event-tag-free">FR
           ${freeTag}${signupTag}
         </div>
       </div>
-    `, { className: 'custom-popup', closeButton: false, maxWidth: Math.min(260, window.innerWidth - 80) });
+    `;
+    }, { className: 'custom-popup', closeButton: false, maxWidth: Math.min(260, window.innerWidth - 80) });
 
     marker.on('popupopen', () => {
       const el = marker.getPopup().getElement();
