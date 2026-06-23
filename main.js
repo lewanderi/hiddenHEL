@@ -4,7 +4,7 @@ const SUPABASE_URL = 'https://oycvxtvlhtajrnvddlhp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95Y3Z4dHZsaHRhanJudmRkbGhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NzkzNTcsImV4cCI6MjA5MjU1NTM1N30.yBfTpwV9ixF0ImfovAx1CHVLgDMRBc21u3rCB3QMFZk';
 
 async function fetchEvents() {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/public_events?select=id,title,date,end_date,time,end_time,description,location_name,link,lat,lng,is_free,signup_required,category`, {    headers: {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/public_events?select=id,title,date,end_date,time,end_time,description,location_name,link,lat,lng,is_free,signup_required,category,featured`, {    headers: {
       'apikey': SUPABASE_ANON_KEY,
       'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
     }
@@ -27,7 +27,8 @@ async function fetchEvents() {
     link: e.link || null,
     is_free: e.is_free ?? null,
     signup_required: e.signup_required ?? false,
-    category: e.category || null
+    category: e.category || null,
+    featured: e.featured ?? false
   }));
 }
 
@@ -43,8 +44,8 @@ function escHtml(str) {
 function formatDateLabel(dateStr) {
   const today = new Date();
   const d = new Date(dateStr);
-  const todayStr = today.toISOString().split('T')[0];
-  const tomorrowStr = new Date(today.getTime() + 86400000).toISOString().split('T')[0];
+  const todayStr = toLocalDateStr(today);
+  const tomorrowStr = toLocalDateStr(new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1));
 
   if (dateStr === todayStr) return 'Today';
   if (dateStr === tomorrowStr) return 'Tomorrow';
@@ -60,6 +61,22 @@ function formatEndDate(dateStr) {
 
 // ---------- Filtering ----------
 
+// Builds a YYYY-MM-DD string from local date components, avoiding the UTC
+// shift that .toISOString() introduces for dates constructed in local time.
+function toLocalDateStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+// Returns sort keys for the multiday-aware comparator.
+// Ongoing multiday events anchor to refNoon so they appear within that day's
+// group; everything else anchors to its own start date.
+function sortKey(e, refNoon) {
+  const start = new Date(e.date + 'T12:00:00');
+  const end   = new Date((e.end_date || e.date) + 'T12:00:00');
+  const isOngoing = !!e.end_date && start <= refNoon && refNoon <= end;
+  return { sortDate: isOngoing ? refNoon : start, isOngoing, start, time: e.time || '99:99' };
+}
+
 function eventEndsAt(e) {
   const base = e.date + 'T';
   if (e.end_time) {
@@ -74,7 +91,7 @@ function eventEndsAt(e) {
 function getFilteredEvents(filter) {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const todayStr = today.toISOString().split('T')[0];
+  const todayStr = toLocalDateStr(today);
   const dayOfWeek = today.getDay();
 
   const endOfWeek = new Date(today);
@@ -100,12 +117,12 @@ function getFilteredEvents(filter) {
       return d >= today && d < tomorrow;
     }
     if (filter === 'tomorrow') {
-      const tomorrowStr = tomorrow.toISOString().split('T')[0];
+      const tomorrowStr = toLocalDateStr(tomorrow);
       if (isMultiday) return e.date <= tomorrowStr && e.end_date >= tomorrowStr;
       return d >= tomorrow && d < new Date(tomorrow.getTime() + 86400000);
     }
     if (filter === 'week') {
-      if (isMultiday) return e.date <= endOfWeek.toISOString().split('T')[0] && e.end_date >= todayStr;
+      if (isMultiday) return e.date <= toLocalDateStr(endOfWeek) && e.end_date >= todayStr;
       return d >= today && d <= endOfWeek;
     }
     if (filter === 'custom') {
@@ -119,9 +136,21 @@ function getFilteredEvents(filter) {
     }
     const cutoff = new Date(today);
     cutoff.setDate(today.getDate() + 30);
-    if (isMultiday) return e.date <= cutoff.toISOString().split('T')[0] && e.end_date >= todayStr;
+    if (isMultiday) return e.date <= toLocalDateStr(cutoff) && e.end_date >= todayStr;
     return d >= today && d <= cutoff;
-  }).sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
+  }).sort((a, b) => {
+    const refNoon = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
+    if (filter === 'tomorrow') refNoon.setDate(refNoon.getDate() + 1);
+    else if (filter === 'custom') {
+      const startEl = document.getElementById('customStartDate');
+      if (startEl && startEl.value) refNoon.setTime(new Date(startEl.value + 'T12:00:00').getTime());
+    }
+    const ka = sortKey(a, refNoon), kb = sortKey(b, refNoon);
+    if (+ka.sortDate !== +kb.sortDate) return +ka.sortDate - +kb.sortDate;
+    if (ka.isOngoing !== kb.isOngoing) return ka.isOngoing ? 1 : -1;
+    if (!ka.isOngoing) return ka.time < kb.time ? -1 : ka.time > kb.time ? 1 : 0;
+    return +ka.start - +kb.start;
+  });
 }
 
 // ---------- Favorites ----------
@@ -153,11 +182,18 @@ function heartSVG() {
 function getUpcomingFavoriteEvents() {
   const favIds = getFavorites();
   const now = new Date();
-  const todayStr = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString().split('T')[0];
+  const todayStr = toLocalDateStr(new Date(now.getFullYear(), now.getMonth(), now.getDate()));
   return events
     .filter(e => favIds.includes(e.id))
     .filter(e => (e.end_date ? e.end_date >= todayStr : eventEndsAt(e) >= now))
-    .sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
+    .sort((a, b) => {
+      const todayNoon = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
+      const ka = sortKey(a, todayNoon), kb = sortKey(b, todayNoon);
+      if (+ka.sortDate !== +kb.sortDate) return +ka.sortDate - +kb.sortDate;
+      if (ka.isOngoing !== kb.isOngoing) return ka.isOngoing ? 1 : -1;
+      if (!ka.isOngoing) return ka.time < kb.time ? -1 : ka.time > kb.time ? 1 : 0;
+      return +ka.start - +kb.start;
+    });
 }
 
 function updateFavBadge() {
@@ -331,6 +367,7 @@ const freeTag = e.is_free === true  ? '<span class="event-tag event-tag-free">FR
             ${e.time ? `<div class="popup-time-box"><div class="popup-time">${escHtml(e.time)}${e.end_time ? '–' + escHtml(e.end_time) : ''}</div></div>` : ''}
           </div>
         </div>
+        ${e.featured ? '<span class="featured-badge">Featured</span>' : ''}
         <div class="popup-title">${escHtml(e.title)}</div>
         <div class="popup-desc">${escHtml(e.desc)}</div>
         <a href="https://www.google.com/maps?q=${e.lat},${e.lng}" target="_blank" class="popup-location">
@@ -375,14 +412,19 @@ function renderList(filtered) {
     return;
   }
 
-  panel.innerHTML = filtered.map(e => {
+  const featuredEvents = filtered.filter(e => e.featured).slice(0, 3);
+  const featuredIds = new Set(featuredEvents.map(e => e.id));
+  const normalEvents = filtered.filter(e => !featuredIds.has(e.id));
+
+  function cardHTML(e, isFeatured) {
     const freeTag = e.is_free === true  ? '<span class="event-tag event-tag-free">FREE</span>'
                   : e.is_free === false ? '<span class="event-tag event-tag-paid">PAID</span>'
                   : '';
     const signupTag = e.signup_required ? '<span class="event-tag event-tag-signup">SIGNUP</span>' : '';
     const fav = isFavorite(e.id);
     return `
-    <div class="event-card ${activeId === e.id ? 'active' : ''}" data-id="${e.id}">
+    <div class="event-card${isFeatured ? ' event-card--featured' : ''}${activeId === e.id ? ' active' : ''}" data-id="${e.id}">
+      ${isFeatured ? '<span class="featured-badge">Featured</span>' : ''}
       <button class="heart-btn${fav ? ' is-fav' : ''}" data-id="${e.id}" aria-label="${fav ? 'Remove from favorites' : 'Save to favorites'}">${heartSVG()}</button>
       ${e.category ? `<div class="event-card-category">${escHtml(e.category)}</div>` : ''}
       <div class="card-date">${e.dateLabel}${e.end_date ? ' – ' + formatEndDate(e.end_date) : ''} ${!e.end_date && e.time ? `<span class="card-time">${escHtml(e.time)}${e.end_time ? '–' + escHtml(e.end_time) : ''}</span>` : ''}</div>
@@ -391,13 +433,22 @@ function renderList(filtered) {
       <div class="card-location">${escHtml(e.location)}${freeTag}${signupTag}</div>
     </div>
   `;
-  }).join('');
+  }
+
+  const featuredHTML = featuredEvents.map(e => cardHTML(e, true)).join('');
+
+  panel.innerHTML = featuredHTML + normalEvents.map(e => cardHTML(e, false)).join('');
 
   panel.querySelectorAll('.event-card').forEach(card => {
     card.addEventListener('click', () => {
-      const e = filtered.find(ev => ev.id === parseInt(card.dataset.id));
-      plausible('Event Card Click', {props: {title: e.title}});
-      selectEvent(parseInt(card.dataset.id));
+      const id = parseInt(card.dataset.id);
+      const e = filtered.find(ev => ev.id === id);
+      if (card.classList.contains('event-card--featured')) {
+        // Register 'title' as a custom property in Plausible Site Settings if not already
+        plausible('Featured Click', { props: { title: e.title } });
+      }
+      plausible('Event Card Click', { props: { title: e.title } });
+      selectEvent(id);
     });
   });
 
@@ -578,8 +629,8 @@ const customEndDate = document.getElementById('customEndDate');
 // Pre-fill today and +7 days as a convenience
 const _today = new Date();
 const _plus7 = new Date(_today.getTime() + 7 * 86400000);
-customStartDate.value = _today.toISOString().split('T')[0];
-customEndDate.value = _plus7.toISOString().split('T')[0];
+customStartDate.value = toLocalDateStr(_today);
+customEndDate.value = toLocalDateStr(_plus7);
 
 customStartDate.addEventListener('change', () => {
   if (!customEndDate.value || customEndDate.value < customStartDate.value) {
