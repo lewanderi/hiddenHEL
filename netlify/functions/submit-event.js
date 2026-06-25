@@ -54,7 +54,7 @@ exports.handler = async (event) => {
       lng: '',
       is_free: data.free,
       signup_required: data.signup_required,
-      category: Array.isArray(data.category) ? `{${data.category.join(',')}}` : data.category,
+      category: Array.isArray(data.category) ? `{${data.category.map(c => `"${c}"`).join(',')}}` : data.category,
       timestamp: new Date().toISOString(),
       submitter_email: data.submitter_email
     });
