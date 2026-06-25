@@ -27,7 +27,7 @@ async function fetchEvents() {
     link: e.link || null,
     is_free: e.is_free ?? null,
     signup_required: e.signup_required ?? false,
-    category: e.category || null,
+    category: e.category || [],
     featured: e.featured ?? false
   }));
 }
@@ -99,7 +99,7 @@ function getFilteredEvents(filter) {
   endOfWeek.setHours(23, 59, 59, 999);
 
   return events.filter(e => {
-    if (activeCategory !== 'all' && e.category !== activeCategory) return false;
+    if (activeCategory !== 'all' && !(e.category || []).includes(activeCategory)) return false;
 
     // For multiday events, check if today falls within the range
     const isMultiday = !!e.end_date;
@@ -240,7 +240,7 @@ function renderFavPanel() {
     return `
       <div class="fav-row" data-id="${e.id}">
         <div class="fav-row-info">
-          ${e.category ? `<div class="event-card-category">${escHtml(e.category)}</div>` : ''}
+          ${e.category?.length ? `<div class="event-card-categories">${e.category.map(c => `<span class="event-card-category">${escHtml(c)}</span>`).join('')}</div>` : ''}
           <div class="card-date">${e.dateLabel}${e.end_date ? ' – ' + formatEndDate(e.end_date) : ''} ${!e.end_date && e.time ? `<span class="card-time">${escHtml(e.time)}${e.end_time ? '–' + escHtml(e.end_time) : ''}</span>` : ''}</div>
           <div class="card-title">${escHtml(e.title)}</div>
           <div class="card-location">${escHtml(e.location)}${freeTag}${signupTag}</div>
@@ -359,7 +359,7 @@ const freeTag = e.is_free === true  ? '<span class="event-tag event-tag-free">FR
       <div class="popup-inner">
         <div class="popup-meta">
           <div>
-            ${e.category ? `<span class="popup-category">${escHtml(e.category)}</span>` : ''}
+            ${e.category?.length ? e.category.map(c => `<span class="popup-category">${escHtml(c)}</span>`).join('') : ''}
             <div class="popup-date-badge">${new Date(e.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short' })} ${e.date.split('-').reverse().join('.')}${e.end_date ? ' – ' + formatEndDate(e.end_date) : ''}</div>
           </div>
           <div class="popup-meta-right">
@@ -426,7 +426,7 @@ function renderList(filtered) {
     <div class="event-card${isFeatured ? ' event-card--featured' : ''}${activeId === e.id ? ' active' : ''}" data-id="${e.id}">
       ${isFeatured ? '<span class="featured-badge">Featured</span>' : ''}
       <button class="heart-btn${fav ? ' is-fav' : ''}" data-id="${e.id}" aria-label="${fav ? 'Remove from favorites' : 'Save to favorites'}">${heartSVG()}</button>
-      ${e.category ? `<div class="event-card-category">${escHtml(e.category)}</div>` : ''}
+      ${e.category?.length ? `<div class="event-card-categories">${e.category.map(c => `<span class="event-card-category">${escHtml(c)}</span>`).join('')}</div>` : ''}
       <div class="card-date">${e.dateLabel}${e.end_date ? ' – ' + formatEndDate(e.end_date) : ''} ${!e.end_date && e.time ? `<span class="card-time">${escHtml(e.time)}${e.end_time ? '–' + escHtml(e.end_time) : ''}</span>` : ''}</div>
       <div class="card-title">${escHtml(e.title)}</div>
       <div class="card-desc">${escHtml(e.desc)}</div>

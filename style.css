@@ -276,6 +276,13 @@ body {
   font-weight: 500;
 }
 
+.event-card-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 0.65rem;
+}
+
 .event-card-category {
   font-size: 0.65rem;
   font-weight: 700;
@@ -284,7 +291,6 @@ body {
   background: rgba(252, 144, 224, 0.15);
   color: var(--pink);
   display: inline-block;
-  margin-bottom: 0.65rem;
 }
 
 .popup-category {
@@ -296,6 +302,7 @@ body {
   color: var(--pink);
   display: inline-block;
   margin-bottom: 0.5rem;
+  margin-right: 4px;
 }
 
 /* ---------- Layout ---------- */

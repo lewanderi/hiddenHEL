@@ -10,7 +10,6 @@ const categories = [
   'Music',
   'Culture',
   'Workshop',
-  'Pop-up',
   'Food & Drinks',
   'Sports & Wellbeing',
   'Other'
@@ -22,7 +21,7 @@ exports.handler = async (event, context) => {
     const { data: events, error } = await supabase
       .from('events')
       .select('id, title, description, location_name')
-      .or('category.is.null,category.eq.""')
+      .is('category', null)
       .limit(500);
 
     if (error) throw error;
@@ -38,7 +37,7 @@ exports.handler = async (event, context) => {
     // Categorize each event
     const updates = [];
     for (const event of events) {
-      const prompt = `Categorize this event. Choose ONE category only.
+      const prompt = `Categorize this event. Choose 1 or 2 categories from the list below that best fit it.
 
 Event: "${event.title}"
 Description: "${event.description || ''}"
@@ -46,7 +45,7 @@ Location: "${event.location_name || ''}"
 
 Categories: ${categories.join(', ')}
 
-Respond with ONLY the category name, nothing else.`;
+Respond with ONLY a JSON array, like: ["Music"] or ["Food & Drinks", "Culture"]. No other text.`;
 
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -67,17 +66,21 @@ Respond with ONLY the category name, nothing else.`;
       }
 
       const data = await response.json();
-      const category = data.content[0].text.trim();
-
-      // Validate category
-      const validCategory = categories.includes(category) ? category : 'Other';
+      let parsed;
+      try {
+        parsed = JSON.parse(data.content[0].text.trim());
+      } catch {
+        parsed = [data.content[0].text.trim()];
+      }
+      const validCategories = parsed.filter(c => categories.includes(c)).slice(0, 2);
+      const finalCategories = validCategories.length > 0 ? validCategories : ['Other'];
 
       updates.push({
         id: event.id,
-        category: validCategory
+        category: finalCategories
       });
 
-      console.log(`${event.title} → ${validCategory}`);
+      console.log(`${event.title} → ${finalCategories.join(', ')}`);
     }
 
     // Bulk update Supabase

@@ -21,15 +21,29 @@ function clearErrors() {
   document.querySelectorAll('.invalid').forEach(el => el.classList.remove('invalid'));
 }
 
+document.querySelectorAll('input[name="category"]').forEach(cb => {
+  cb.addEventListener('change', () => {
+    const checked = document.querySelectorAll('input[name="category"]:checked');
+    if (checked.length > 2) cb.checked = false;
+  });
+});
+
 function validate() {
   let valid = true;
 
-  ['title', 'description', 'date', 'time', 'location', 'link', 'category', 'submitter_email'].forEach(id => {
+  ['title', 'description', 'date', 'time', 'location', 'link', 'submitter_email'].forEach(id => {
     if (!document.getElementById(id).value.trim()) {
       showFieldError(id, 'Please fill this in');
       valid = false;
     }
   });
+
+  const selectedCategories = Array.from(document.querySelectorAll('input[name="category"]:checked'));
+  if (selectedCategories.length === 0) {
+    showFieldError('category', 'Please select at least one category');
+    document.getElementById('category').classList.add('invalid');
+    valid = false;
+  }
 
   if (!document.querySelector('input[name="free"]:checked')) {
     showFieldError('free', 'Please select one');
@@ -62,7 +76,7 @@ form.addEventListener('submit', async (e) => {
     link: document.getElementById('link').value.trim(),
     free: document.querySelector('input[name="free"]:checked').value === 'yes',
     signup_required: document.querySelector('input[name="signup"]:checked').value === 'yes',
-    category: document.getElementById('category').value,
+    category: Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.value),
     submitter_email: document.getElementById('submitter_email').value.trim()
   };
 

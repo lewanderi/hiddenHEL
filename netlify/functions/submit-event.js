@@ -17,7 +17,11 @@ exports.handler = async (event) => {
     // Validate required fields
     const required = ['title', 'date', 'time', 'description', 'location', 'link', 'free', 'signup_required', 'category', 'submitter_email'];
     for (const field of required) {
-      if (!data[field] && data[field] !== false) {
+      if (field === 'category') {
+        if (!Array.isArray(data[field]) || data[field].length === 0) {
+          return { statusCode: 400, body: JSON.stringify({ error: 'Missing required field: category' }) };
+        }
+      } else if (!data[field] && data[field] !== false) {
         return {
           statusCode: 400,
           body: JSON.stringify({ error: `Missing required field: ${field}` })
@@ -50,7 +54,7 @@ exports.handler = async (event) => {
       lng: '',
       is_free: data.free,
       signup_required: data.signup_required,
-      category: data.category,
+      category: Array.isArray(data.category) ? `{${data.category.join(',')}}` : data.category,
       timestamp: new Date().toISOString(),
       submitter_email: data.submitter_email
     });

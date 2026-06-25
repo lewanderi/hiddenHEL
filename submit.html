@@ -108,17 +108,15 @@
         </div>
 
         <div class="field">
-          <label>Category <span class="req">*</span></label>
-          <select id="category">
-            <option value="">Select a category...</option>
-            <option value="Music">Music</option>
-            <option value="Culture">Culture</option>
-            <option value="Workshop">Workshop</option>
-            <option value="Pop-up">Pop-up</option>
-            <option value="Food & Drinks">Food & Drinks</option>
-            <option value="Sports & Wellbeing">Sports & Wellbeing</option>
-            <option value="Other">Other</option>
-          </select>
+          <label>Category <span class="req">*</span> <span class="field-hint-inline">Select up to 2</span></label>
+          <div class="checkbox-group" id="category">
+            <label class="checkbox-label"><input type="checkbox" name="category" value="Music"><span class="checkbox-box"></span>Music</label>
+            <label class="checkbox-label"><input type="checkbox" name="category" value="Culture"><span class="checkbox-box"></span>Culture</label>
+            <label class="checkbox-label"><input type="checkbox" name="category" value="Workshop"><span class="checkbox-box"></span>Workshop</label>
+            <label class="checkbox-label"><input type="checkbox" name="category" value="Food & Drinks"><span class="checkbox-box"></span>Food & Drinks</label>
+            <label class="checkbox-label"><input type="checkbox" name="category" value="Sports & Wellbeing"><span class="checkbox-box"></span>Sports & Wellbeing</label>
+            <label class="checkbox-label"><input type="checkbox" name="category" value="Other"><span class="checkbox-box"></span>Other</label>
+          </div>
           <div class="field-error" id="category-error"></div>
         </div>
 

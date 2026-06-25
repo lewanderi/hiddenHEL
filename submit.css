@@ -152,6 +152,76 @@ main {
   min-width: 0;
 }
 
+.field-hint-inline {
+  font-size: 0.7rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #555;
+}
+
+/* ---------- Checkbox buttons ---------- */
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--white);
+  user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.checkbox-box {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  background: var(--gray);
+  border: 1px solid #2a2a2a;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, background 0.15s;
+  position: relative;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkbox-box {
+  border-color: var(--pink);
+  background: rgba(252, 144, 224, 0.15);
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkbox-box::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background: var(--pink);
+  border-radius: 2px;
+  display: block;
+}
+
+.checkbox-label:hover .checkbox-box {
+  border-color: var(--pink);
+}
+
+.checkbox-group.invalid .checkbox-box {
+  border-color: var(--pink);
+}
+
 /* ---------- Radio buttons ---------- */
 
 .radio-group {
