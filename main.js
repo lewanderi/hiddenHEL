@@ -99,7 +99,9 @@ function getFilteredEvents(filter) {
   endOfWeek.setHours(23, 59, 59, 999);
 
   return events.filter(e => {
-    if (activeCategory !== 'all' && !(e.category || []).includes(activeCategory)) return false;
+    if (activeCategory === 'Free') {
+      if (e.is_free !== true) return false;
+    } else if (activeCategory !== 'all' && !(e.category || []).includes(activeCategory)) return false;
 
     // For multiday events, check if today falls within the range
     const isMultiday = !!e.end_date;
@@ -527,12 +529,31 @@ document.querySelectorAll('.filter-btn:not(#customDatesBtn)').forEach(btn => {
 
 // ---------- Category filter buttons ----------
 
+const categoryToggleBtn = document.getElementById('categoryToggleBtn');
+const categoryToggleLabel = categoryToggleBtn.querySelector('.category-toggle-label');
+const categoryFiltersEl = document.getElementById('categoryFilters');
+
+function updateCategoryToggleLabel() {
+  categoryToggleLabel.textContent = activeCategory === 'all' ? 'Categories' : activeCategory;
+  categoryToggleBtn.classList.toggle('filtered', activeCategory !== 'all');
+}
+
+categoryToggleBtn.addEventListener('click', () => {
+  const open = categoryFiltersEl.classList.toggle('open');
+  categoryToggleBtn.classList.toggle('open', open);
+  categoryToggleBtn.setAttribute('aria-expanded', String(open));
+});
+
 document.querySelectorAll('.category-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     activeCategory = btn.dataset.category;
     activeId = null;
+    updateCategoryToggleLabel();
+    categoryFiltersEl.classList.remove('open');
+    categoryToggleBtn.classList.remove('open');
+    categoryToggleBtn.setAttribute('aria-expanded', 'false');
     plausible('Category Filter Click', {props: {category: btn.dataset.category}});
     render();
   });
