@@ -4,7 +4,16 @@ const SUPABASE_URL = 'https://oycvxtvlhtajrnvddlhp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95Y3Z4dHZsaHRhanJudmRkbGhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NzkzNTcsImV4cCI6MjA5MjU1NTM1N30.yBfTpwV9ixF0ImfovAx1CHVLgDMRBc21u3rCB3QMFZk';
 
 async function fetchEvents() {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/public_events?select=id,title,date,end_date,time,end_time,description,location_name,link,lat,lng,is_free,signup_required,category,featured`, {    headers: {
+  const todayStr = toLocalDateStr(new Date());
+  // Filters out ended events server-side so we never rely on PostgREST's
+  // default 1000-row cap to happen to include every upcoming event.
+  const params = new URLSearchParams({
+    select: 'id,title,date,end_date,time,end_time,description,location_name,link,lat,lng,is_free,signup_required,category,featured',
+    or: `(end_date.gte.${todayStr},and(end_date.is.null,date.gte.${todayStr}))`,
+    order: 'date.asc'
+  });
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/public_events?${params}`, {
+    headers: {
       'apikey': SUPABASE_ANON_KEY,
       'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
     }
@@ -534,7 +543,7 @@ const categoryToggleLabel = categoryToggleBtn.querySelector('.category-toggle-la
 const categoryFiltersEl = document.getElementById('categoryFilters');
 
 function updateCategoryToggleLabel() {
-  categoryToggleLabel.textContent = activeCategory === 'all' ? 'Categories' : activeCategory;
+  categoryToggleLabel.textContent = activeCategory === 'all' ? 'Filters' : activeCategory;
   categoryToggleBtn.classList.toggle('filtered', activeCategory !== 'all');
 }
 

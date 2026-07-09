@@ -888,7 +888,7 @@ body {
     border-bottom: 1px solid #1f1f1f;
     color: var(--muted);
     font-family: var(--font-body);
-    font-size: 0.75rem;
+    font-size: 0.9rem;
     padding: 0.5rem 1rem;
     cursor: pointer;
     letter-spacing: 0.02em;
@@ -899,6 +899,7 @@ body {
   }
 
   .category-toggle-caret {
+    font-size: 1.2rem;
     transition: transform 0.15s ease;
   }
 
