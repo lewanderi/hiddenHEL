@@ -435,19 +435,18 @@ function renderList(filtered) {
   const featuredIds = new Set(featuredEvents.map(e => e.id));
   const normalEvents = filtered.filter(e => !featuredIds.has(e.id));
 
-  function cardHTML(e, isFeatured, hideDateLabel) {
+  function cardHTML(e, isFeatured) {
     const freeTag = e.is_free === true  ? '<span class="event-tag event-tag-free">FREE</span>'
                   : e.is_free === false ? '<span class="event-tag event-tag-paid">PAID</span>'
                   : '';
     const signupTag = e.signup_required ? '<span class="event-tag event-tag-signup">SIGNUP</span>' : '';
     const fav = isFavorite(e.id);
-    const dateLine = `${hideDateLabel ? '' : e.dateLabel}${e.end_date ? ' – ' + formatEndDate(e.end_date) : ''} ${!e.end_date && e.time ? `<span class="card-time">${escHtml(e.time)}${e.end_time ? '–' + escHtml(e.end_time) : ''}</span>` : ''}`.trim();
     return `
     <div class="event-card${isFeatured ? ' event-card--featured' : ''}${activeId === e.id ? ' active' : ''}" data-id="${e.id}">
       ${isFeatured ? '<span class="featured-badge">Featured</span>' : ''}
       <button class="heart-btn${fav ? ' is-fav' : ''}" data-id="${e.id}" aria-label="${fav ? 'Remove from favorites' : 'Save to favorites'}">${heartSVG()}</button>
       ${e.category?.length ? `<div class="event-card-categories">${e.category.map(c => `<span class="event-card-category">${escHtml(c)}</span>`).join('')}</div>` : ''}
-      ${dateLine ? `<div class="card-date">${dateLine}</div>` : ''}
+      <div class="card-date">${e.dateLabel}${e.end_date ? ' – ' + formatEndDate(e.end_date) : ''} ${!e.end_date && e.time ? `<span class="card-time">${escHtml(e.time)}${e.end_time ? '–' + escHtml(e.end_time) : ''}</span>` : ''}</div>
       <div class="card-title">${escHtml(e.title)}</div>
       <div class="card-desc">${escHtml(e.desc)}</div>
       <div class="card-location">${escHtml(e.location)}${freeTag}${signupTag}</div>
@@ -466,7 +465,7 @@ function renderList(filtered) {
       headerHTML = `<div class="date-group-header">${formatDateLabel(groupStr)}</div>`;
       lastGroup = groupStr;
     }
-    return headerHTML + cardHTML(e, false, true);
+    return headerHTML + cardHTML(e, false);
   }).join('');
 
   panel.innerHTML = featuredHTML + normalHTML;
