@@ -325,23 +325,40 @@ body {
   border-right: 1px solid #1f1f1f;
   scrollbar-width: thin;
   scrollbar-color: #2a2a2a transparent;
+  padding: 0.5rem 0 1rem;
 }
 
 .event-card {
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid #141414;
+  margin: 0 1rem 0.65rem;
+  padding: 1.1rem 1.25rem;
+  border-radius: 14px;
+  background: #131313;
   cursor: pointer;
   transition: background 0.12s ease;
   position: relative;
 }
 
 .event-card:hover {
-  background: #111;
+  background: #191919;
 }
 
 .event-card.active {
-  background: #111;
+  background: #191919;
   border-left: 2px solid var(--pink);
+}
+
+.date-group-header {
+  padding: 0 1.25rem;
+  margin: 1.6rem 0 0.6rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.date-group-header:first-child {
+  margin-top: 0.4rem;
 }
 
 /* ---------- Featured tier ---------- */
@@ -349,11 +366,11 @@ body {
 
 .event-card--featured {
   border-left: 3px solid var(--pink);
-  background: #0d0a0d;
+  background: #150f14;
 }
 
 .event-card--featured:hover {
-  background: #130f13;
+  background: #1c151b;
 }
 
 .event-card--featured.active {

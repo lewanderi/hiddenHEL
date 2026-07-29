@@ -76,6 +76,19 @@ function toLocalDateStr(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+// Noon on the day the list is anchored to (today, tomorrow, or the custom
+// range start), used to decide which day's group an ongoing multiday event
+// belongs in.
+function computeRefNoon(now, filter) {
+  const refNoon = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
+  if (filter === 'tomorrow') refNoon.setDate(refNoon.getDate() + 1);
+  else if (filter === 'custom') {
+    const startEl = document.getElementById('customStartDate');
+    if (startEl && startEl.value) refNoon.setTime(new Date(startEl.value + 'T12:00:00').getTime());
+  }
+  return refNoon;
+}
+
 // Returns sort keys for the multiday-aware comparator.
 // Ongoing multiday events anchor to refNoon so they appear within that day's
 // group; everything else anchors to its own start date.
@@ -150,12 +163,7 @@ function getFilteredEvents(filter) {
     if (isMultiday) return e.date <= toLocalDateStr(cutoff) && e.end_date >= todayStr;
     return d >= today && d <= cutoff;
   }).sort((a, b) => {
-    const refNoon = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
-    if (filter === 'tomorrow') refNoon.setDate(refNoon.getDate() + 1);
-    else if (filter === 'custom') {
-      const startEl = document.getElementById('customStartDate');
-      if (startEl && startEl.value) refNoon.setTime(new Date(startEl.value + 'T12:00:00').getTime());
-    }
+    const refNoon = computeRefNoon(now, filter);
     const ka = sortKey(a, refNoon), kb = sortKey(b, refNoon);
     if (+ka.sortDate !== +kb.sortDate) return +ka.sortDate - +kb.sortDate;
     if (ka.isOngoing !== kb.isOngoing) return ka.isOngoing ? 1 : -1;
@@ -427,18 +435,19 @@ function renderList(filtered) {
   const featuredIds = new Set(featuredEvents.map(e => e.id));
   const normalEvents = filtered.filter(e => !featuredIds.has(e.id));
 
-  function cardHTML(e, isFeatured) {
+  function cardHTML(e, isFeatured, hideDateLabel) {
     const freeTag = e.is_free === true  ? '<span class="event-tag event-tag-free">FREE</span>'
                   : e.is_free === false ? '<span class="event-tag event-tag-paid">PAID</span>'
                   : '';
     const signupTag = e.signup_required ? '<span class="event-tag event-tag-signup">SIGNUP</span>' : '';
     const fav = isFavorite(e.id);
+    const dateLine = `${hideDateLabel ? '' : e.dateLabel}${e.end_date ? ' – ' + formatEndDate(e.end_date) : ''} ${!e.end_date && e.time ? `<span class="card-time">${escHtml(e.time)}${e.end_time ? '–' + escHtml(e.end_time) : ''}</span>` : ''}`.trim();
     return `
     <div class="event-card${isFeatured ? ' event-card--featured' : ''}${activeId === e.id ? ' active' : ''}" data-id="${e.id}">
       ${isFeatured ? '<span class="featured-badge">Featured</span>' : ''}
       <button class="heart-btn${fav ? ' is-fav' : ''}" data-id="${e.id}" aria-label="${fav ? 'Remove from favorites' : 'Save to favorites'}">${heartSVG()}</button>
       ${e.category?.length ? `<div class="event-card-categories">${e.category.map(c => `<span class="event-card-category">${escHtml(c)}</span>`).join('')}</div>` : ''}
-      <div class="card-date">${e.dateLabel}${e.end_date ? ' – ' + formatEndDate(e.end_date) : ''} ${!e.end_date && e.time ? `<span class="card-time">${escHtml(e.time)}${e.end_time ? '–' + escHtml(e.end_time) : ''}</span>` : ''}</div>
+      ${dateLine ? `<div class="card-date">${dateLine}</div>` : ''}
       <div class="card-title">${escHtml(e.title)}</div>
       <div class="card-desc">${escHtml(e.desc)}</div>
       <div class="card-location">${escHtml(e.location)}${freeTag}${signupTag}</div>
@@ -448,7 +457,19 @@ function renderList(filtered) {
 
   const featuredHTML = featuredEvents.map(e => cardHTML(e, true)).join('');
 
-  panel.innerHTML = featuredHTML + normalEvents.map(e => cardHTML(e, false)).join('');
+  const refNoon = computeRefNoon(new Date(), activeFilter);
+  let lastGroup = null;
+  const normalHTML = normalEvents.map(e => {
+    const groupStr = toLocalDateStr(sortKey(e, refNoon).sortDate);
+    let headerHTML = '';
+    if (groupStr !== lastGroup) {
+      headerHTML = `<div class="date-group-header">${formatDateLabel(groupStr)}</div>`;
+      lastGroup = groupStr;
+    }
+    return headerHTML + cardHTML(e, false, true);
+  }).join('');
+
+  panel.innerHTML = featuredHTML + normalHTML;
 
   panel.querySelectorAll('.event-card').forEach(card => {
     card.addEventListener('click', () => {
