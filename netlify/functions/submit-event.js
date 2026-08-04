@@ -29,6 +29,10 @@ exports.handler = async (event) => {
       }
     }
 
+    if (data.end_date && data.end_date < data.date) {
+      return { statusCode: 400, body: JSON.stringify({ error: 'end_date must be on or after date' }) };
+    }
+
     // Initialize Google Sheets API with service account
     const serviceAccountAuth = new JWT({
       email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
@@ -45,6 +49,7 @@ exports.handler = async (event) => {
     await sheet.addRow({
       title: data.title,
       date: data.date,
+      end_date: data.end_date || '',
       time: data.time,
       end_time: data.end_time || '',
       description: data.description,

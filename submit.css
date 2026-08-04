@@ -50,6 +50,10 @@ main {
   gap: 0.5rem;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 .field label .req { color: var(--pink); }
 
 .field label {

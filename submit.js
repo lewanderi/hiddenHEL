@@ -28,6 +28,19 @@ document.querySelectorAll('input[name="category"]').forEach(cb => {
   });
 });
 
+const multidayCheckbox = document.getElementById('multiday');
+const endDateField = document.getElementById('end-date-field');
+const endDateInput = document.getElementById('end_date');
+const timeHint = document.getElementById('time-hint');
+
+function setMultiday(isMultiday) {
+  endDateField.hidden = !isMultiday;
+  timeHint.hidden = !isMultiday;
+  if (!isMultiday) endDateInput.value = '';
+}
+
+multidayCheckbox.addEventListener('change', () => setMultiday(multidayCheckbox.checked));
+
 function validate() {
   let valid = true;
 
@@ -37,6 +50,16 @@ function validate() {
       valid = false;
     }
   });
+
+  if (multidayCheckbox.checked) {
+    if (!endDateInput.value) {
+      showFieldError('end_date', 'Please fill this in');
+      valid = false;
+    } else if (endDateInput.value < document.getElementById('date').value) {
+      showFieldError('end_date', 'End date must be on or after the start date');
+      valid = false;
+    }
+  }
 
   const selectedCategories = Array.from(document.querySelectorAll('input[name="category"]:checked'));
   if (selectedCategories.length === 0) {
@@ -69,6 +92,7 @@ form.addEventListener('submit', async (e) => {
   const formData = {
     title: document.getElementById('title').value.trim(),
     date: document.getElementById('date').value,
+    end_date: multidayCheckbox.checked ? endDateInput.value : '',
     time: document.getElementById('time').value,
     end_time: document.getElementById('end_time').value,
     description: document.getElementById('description').value.trim(),
@@ -97,6 +121,7 @@ form.addEventListener('submit', async (e) => {
       successMsg.textContent = `✓ Thanks for the submission! We'll check it and contact ${formData.submitter_email} in case of a problem.`;
       successMsg.classList.add('show');
       form.reset();
+      setMultiday(false);
       successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } else {
       throw new Error(result.error || 'something went wrong');

@@ -49,6 +49,20 @@
           <div class="field-error" id="date-error"></div>
         </div>
 
+        <div class="field">
+          <label class="checkbox-label">
+            <input type="checkbox" id="multiday" />
+            <span class="checkbox-box"></span>
+            This event spans multiple days
+          </label>
+        </div>
+
+        <div class="field date-field" id="end-date-field" hidden>
+          <label>End date <span class="req">*</span></label>
+          <input type="date" id="end_date" />
+          <div class="field-error" id="end_date-error"></div>
+        </div>
+
         <div class="row time-field">
           <div class="field">
             <label>Start time <span class="req">*</span></label>
@@ -60,6 +74,7 @@
             <input type="time" id="end_time" />
           </div>
         </div>
+        <div class="field-hint" id="time-hint" hidden>For multi-day events, this is the daily opening/closing time.</div>
 
         <div class="field">
           <label>Location <span class="req">*</span></label>
