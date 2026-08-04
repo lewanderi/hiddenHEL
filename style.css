@@ -322,6 +322,7 @@ body {
 
 .list-panel {
   overflow-y: auto;
+  overflow-x: hidden;
   border-right: 1px solid #1f1f1f;
   scrollbar-width: thin;
   scrollbar-color: #2a2a2a transparent;
@@ -414,6 +415,7 @@ body {
   letter-spacing: -0.01em;
   line-height: 1.2;
   text-transform: uppercase;
+  overflow-wrap: break-word;
 }
 
 .card-desc {
@@ -421,6 +423,7 @@ body {
   color: #888;
   line-height: 1.5;
   margin-bottom: 0.6rem;
+  overflow-wrap: break-word;
 }
 
 .card-location {
@@ -428,6 +431,7 @@ body {
   color: var(--muted);;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.3rem;
 }
 
@@ -882,6 +886,7 @@ body {
     height: 100%;
     max-height: none;
     overflow-y: auto;
+    overflow-x: hidden;
     border-right: none;
     padding-bottom: 5rem;
   }
