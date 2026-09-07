@@ -1,3 +1,7 @@
+function track(name, props) {
+  if (typeof umami !== 'undefined') umami.track(name, props);
+}
+
 // ---------- Supabase ----------
 
 const SUPABASE_URL = 'https://oycvxtvlhtajrnvddlhp.supabase.co';
@@ -228,8 +232,8 @@ function toggleFavoriteById(id) {
     addFavorite(id);
     const e = events.find(ev => ev.id === id);
     if (e) {
-      // Register 'title' as a custom property in Plausible Site Settings if not already (may be set from Map Marker Click)
-      plausible('Favorite Added', { props: { title: e.title } });
+      // Register 'title' as a custom data property in Umami if not already (may be set from Map Marker Click)
+      track('Favorite Added', { title: e.title });
     }
   } else {
     removeFavorite(id);
@@ -404,17 +408,17 @@ const freeTag = e.is_free === true  ? '<span class="event-tag event-tag-free">FR
     marker.on('popupopen', () => {
       const el = marker.getPopup().getElement();
       el.querySelector('.popup-location')?.addEventListener('click', () => {
-        plausible('Google Maps Click', { props: { title: e.title } });
+        track('Google Maps Click', { title: e.title });
       });
       if (safeLink) {
         el.querySelector('.popup-link-btn')?.addEventListener('click', () => {
-          plausible('External Link Click', { props: { title: e.title } });
+          track('External Link Click', { title: e.title });
         });
       }
     });
 
     marker.on('click', () => {
-      plausible('Map Marker Click', {props: {title: e.title}});
+      track('Map Marker Click', { title: e.title });
       selectEvent(e.id);
     });
     markers[e.id] = marker;
@@ -475,10 +479,10 @@ function renderList(filtered) {
       const id = parseInt(card.dataset.id);
       const e = filtered.find(ev => ev.id === id);
       if (card.classList.contains('event-card--featured')) {
-        // Register 'title' as a custom property in Plausible Site Settings if not already
-        plausible('Featured Click', { props: { title: e.title } });
+        // Register 'title' as a custom data property in Umami if not already
+        track('Featured Click', { title: e.title });
       }
-      plausible('Event Card Click', { props: { title: e.title } });
+      track('Event Card Click', { title: e.title });
       selectEvent(id);
     });
   });
@@ -551,7 +555,7 @@ document.querySelectorAll('.filter-btn:not(#customDatesBtn)').forEach(btn => {
     btn.classList.add('active');
     activeFilter = btn.dataset.filter;
     activeId = null;
-    plausible('Filter Click', {props: {filter: btn.dataset.filter}});
+    track('Filter Click', { filter: btn.dataset.filter });
     render();
   });
 });
@@ -583,7 +587,7 @@ document.querySelectorAll('.category-btn').forEach(btn => {
     categoryFiltersEl.classList.remove('open');
     categoryToggleBtn.classList.remove('open');
     categoryToggleBtn.setAttribute('aria-expanded', 'false');
-    plausible('Category Filter Click', {props: {category: btn.dataset.category}});
+    track('Category Filter Click', { category: btn.dataset.category });
     render();
   });
 });
@@ -597,7 +601,7 @@ document.querySelectorAll('.toggle-btn').forEach(btn => {
     const layout = document.getElementById('layout');
     layout.classList.toggle('list-mode', btn.dataset.view === 'list');
     if (btn.dataset.view === 'map') map.invalidateSize();
-    plausible('View Toggle', {props: {view: btn.dataset.view}});
+    track('View Toggle', { view: btn.dataset.view });
   });
 });
 
@@ -708,7 +712,7 @@ customDatesBtn.addEventListener('click', () => {
     clearCustomFilter();
     return;
   }
-  plausible('Custom Date Range Click');
+  track('Custom Date Range Click');
   customDatesModal.style.display = 'flex';
 });
 
@@ -735,7 +739,7 @@ customDatesSearchBtn.addEventListener('click', () => {
     return;
   }
 
-  plausible('Custom Date Search', {props: {startDate: start, endDate: end}});
+  track('Custom Date Search', { startDate: start, endDate: end });
   customDatesModal.style.display = 'none';
   customDatesBtn.textContent = `${formatShortDate(start)}–${formatShortDate(end)} ✕`;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
