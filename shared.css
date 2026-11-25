@@ -32,15 +32,12 @@ header {
 
 .logo {
   text-decoration: none;
-}
-
-.logo img {
-  height: 80px;
-  width: auto;
-}
-
-.logo span {
+  font-family: var(--font);
+  font-size: 2rem;
+  font-weight: 700;
   color: var(--pink);
+  letter-spacing: -0.01em;
+  line-height: 1;
 }
 
 .back-link {
@@ -60,7 +57,7 @@ header {
     padding: 0.5rem 1rem;
   }
 
-  .logo img {
-    height: 44px;
+  .logo {
+    font-size: 1.4rem;
   }
 }

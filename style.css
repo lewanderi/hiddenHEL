@@ -36,8 +36,12 @@
 .overlay-close:hover { opacity: 1; }
 
 .overlay-logo {
-  width: 180px;
-  max-width: 60vw;
+  font-family: var(--font);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--pink);
+  letter-spacing: -0.01em;
+  line-height: 1;
 }
 
 .overlay-headline {
@@ -77,7 +81,7 @@
 @media (max-width: 480px) {
   .overlay-headline { font-size: 1.2rem; }
   .overlay-types { font-size: 0.9rem; }
-  .overlay-logo { width: 140px; }
+  .overlay-logo { font-size: 2rem; }
 }
 
 body {
